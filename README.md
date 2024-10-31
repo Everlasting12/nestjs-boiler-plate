@@ -26,6 +26,15 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+### Project Description
+
+Initial setup using nestjs to cater following usecases
+
+1. Relational DataBase Management(RDBMS) - PostgreSQL, Prisma ORM
+2. User Management
+3. Auth Management using JWT
+4. Winston Logger
+
 ## Project setup
 
 ```bash
