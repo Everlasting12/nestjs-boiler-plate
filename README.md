@@ -35,6 +35,16 @@ Initial setup using nestjs to cater following usecases
 3. Auth Management using JWT
 4. Winston Logger
 
+## Setup Email Configurations
+
+### via Gmail
+
+1. Create Google/Gmail account
+2. Enable 2FA
+3. go to manage google account settings
+4. search for 'App passwords'
+5. create app - google will generate a pass key for you - store that in your .env file against 'EMAIL_SECRETE_KEY' environment variable
+
 ## Project setup
 
 ```bash

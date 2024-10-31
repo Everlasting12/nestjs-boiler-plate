@@ -14,14 +14,35 @@ datasource db {
 }
 
 model User {
-  id         Int       @id @default(autoincrement())
-  userId     String    @unique @default(uuid())
-  email      String    @unique
-  name       String
-  password   String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  isActive   Boolean   @default(true) // For user account status
-  profilePic String? // URL or path to profile picture
-  lastLogin  DateTime? // Tracks last login time
+  id             Int       @id @default(autoincrement())
+  userId         String    @unique @default(uuid())
+  email          String    @unique
+  name           String
+  password       String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  isActive       Boolean   @default(true) // For user account status
+  firebaseTokens String[]
+  profilePic     String? // URL or path to profile picture
+  lastLogin      DateTime? // Tracks last login time
+}
+
+model Notification {
+  id             Int      @id @default(autoincrement())
+  notificationId String   @unique @default(uuid())
+  recipient      String
+  createdAt      DateTime @default(now())
+  userId         String?
+  body           Json
+}
+
+model NotificationTemplate {
+  id          Int      @id @default(autoincrement())
+  templateId  String   @unique @default(uuid())
+  name        String   @unique()
+  channelType Json
+  channels    Json
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
