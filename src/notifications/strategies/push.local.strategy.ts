@@ -3,11 +3,11 @@ import { notificationChannelTypes } from '../factory/notification.factory.js';
 import admin from 'firebase-admin';
 import { Utility } from '../../../libs/common/utils.js';
 import { LoggerService } from '../../../libs/common/logger/logger.service.js';
-import { PUSH } from '../dto/create-notification.dto.js';
+import { PUSH } from '../dto/send-notification.dto';
 import { NotificationTemplate } from '../types/notification-template.type.js';
 
 const logger: LoggerService = new LoggerService();
-export class PushLocalStrategy extends NotificationStrategy {
+export class PushLocalStrategy implements NotificationStrategy {
   async sendNotification(template: NotificationTemplate, data: PUSH[]) {
     logger.debug('inside', PushLocalStrategy.name);
     if (!template.channelType[notificationChannelTypes.PUSH]) {

@@ -9,7 +9,8 @@ import { Utility } from '../../../libs/common/utils';
 import { LoggerService } from '../../../libs/common/logger/logger.service';
 import { TransportOptions } from 'nodemailer';
 import { NotificationTemplate } from '../types/notification-template.type';
-import { EMAIL } from '../dto/create-notification.dto';
+import { EMAIL } from '../dto/send-notification.dto';
+import { CreateNotificationDto } from '../dto/create-notification.dto';
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SERVICE_HOST,
@@ -21,10 +22,14 @@ const transporter = nodemailer.createTransport({
   },
 } as TransportOptions);
 
-export class EmailLocalStrategy extends NotificationStrategy {
+export class EmailLocalStrategy implements NotificationStrategy {
   logger: LoggerService = new LoggerService();
 
-  async sendNotification(template: NotificationTemplate, data: EMAIL[]) {
+  async sendNotification(
+    template: NotificationTemplate,
+    data: EMAIL[],
+    notificationBulk: CreateNotificationDto[],
+  ) {
     this.logger.debug(`inside ${EmailLocalStrategy.name}`);
     if (!template.channelType[notificationChannelTypes.EMAIL]) {
       this.logger.error(
@@ -34,12 +39,12 @@ export class EmailLocalStrategy extends NotificationStrategy {
     }
     const { content, variables: templateVariables } = template.channels.EMAIL;
 
-    const templatepath = path.join('email-templates', content.templateName);
+    const templatePath = path.join('email-templates', content.templateName);
     this.logger.debug(
-      'EmailLocalStrategy ~ sendNotification ~ templatepath',
-      templatepath,
+      'EmailLocalStrategy ~ sendNotification ~ templatePath',
+      templatePath,
     );
-    const ejsTemplate = fs.readFileSync(templatepath, 'utf-8');
+    const ejsTemplate = fs.readFileSync(templatePath, 'utf-8');
     const compiledTemplate = ejs.compile(ejsTemplate);
 
     const sendEmail = (
@@ -75,6 +80,8 @@ export class EmailLocalStrategy extends NotificationStrategy {
     const results = await Promise.allSettled(promises);
 
     results.forEach((result, idx) => {
+      let success = false;
+      let message = '';
       if (result.status === 'fulfilled') {
         this.logger.debug(
           `EmailLocalStrategy ~ sendNotification result ${JSON.stringify(result)}`,
@@ -82,12 +89,25 @@ export class EmailLocalStrategy extends NotificationStrategy {
         this.logger.debug(
           `EmailLocalStrategy ~ sendNotification Email to ${data[idx].recipient} was sent successfully.`,
         );
+        success = true;
+        message = `Email to ${data[idx].recipient} was sent successfully.`;
       } else {
         this.logger.error(
           `EmailLocalStrategy ~ sendNotification Email to ${data[idx].recipient} failed:`,
           result.reason,
         );
+        success = false;
+        message = JSON.stringify(result.reason);
       }
+
+      const dto = new CreateNotificationDto();
+      dto.templateName = template.name;
+      dto.recipient = data[idx].recipient;
+      dto.success = success;
+      dto.message = message;
+      dto.body = data[idx];
+
+      notificationBulk.push(dto);
     });
   }
 }

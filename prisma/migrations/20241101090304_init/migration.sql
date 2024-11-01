@@ -20,9 +20,12 @@ CREATE TABLE "Notification" (
     "id" SERIAL NOT NULL,
     "notificationId" TEXT NOT NULL,
     "recipient" TEXT NOT NULL,
+    "templateName" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "userId" TEXT,
     "body" JSONB NOT NULL,
+    "message" TEXT,
+    "success" BOOLEAN NOT NULL,
 
     CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
 );

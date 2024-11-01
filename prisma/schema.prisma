@@ -31,9 +31,12 @@ model Notification {
   id             Int      @id @default(autoincrement())
   notificationId String   @unique @default(uuid())
   recipient      String
+  templateName   String
   createdAt      DateTime @default(now())
   userId         String?
   body           Json
+  message        String?
+  success        Boolean
 }
 
 model NotificationTemplate {

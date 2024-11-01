@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { SendNotificationDto } from './dto/create-notification.dto';
+import { SendNotificationDto } from './dto/send-notification.dto';
 import { NotificationTemplatesService } from './notification-templates/notification-templates.service';
 import { LoggerService } from 'libs/common/logger/logger.service';
 import {
@@ -7,11 +7,14 @@ import {
   NotificationFactory,
 } from './factory/notification.factory';
 import { NotificationTemplate } from './types/notification-template.type';
+import { NotificationRepository } from './notification.respository';
+import { CreateNotificationDto } from './dto/create-notification.dto';
 
 @Injectable()
 export class NotificationsService {
   constructor(
     private readonly notificationTemplateService: NotificationTemplatesService,
+    private readonly notificationRepository: NotificationRepository,
   ) {}
 
   logger: LoggerService = new LoggerService();
@@ -34,6 +37,8 @@ export class NotificationsService {
 
     const { channelType } = template;
 
+    const notificationBulk: CreateNotificationDto[] = [];
+
     for (const [key] of Object.entries(payload)) {
       if (!channelType[key]) {
         this.logger.info(
@@ -47,13 +52,24 @@ export class NotificationsService {
           channelType[key],
           key as keyof typeof notificationChannelTypes,
         );
-        strategy.sendNotification(
+
+        await strategy.sendNotification(
           template as NotificationTemplate,
           payload[key],
+          notificationBulk,
         );
+
+        this.logger.debug(
+          'NotificationsService ~ create ~ notificationBulk:',
+          notificationBulk,
+        );
+        if (notificationBulk?.length)
+          this.notificationRepository.bulkCreate(notificationBulk);
       }
     }
 
-    return 'This action adds a new notification';
+    return {
+      message: 'Notification request send succesfully',
+    };
   }
 }

@@ -1,10 +1,10 @@
 import { NotificationStrategy } from './notification-strategy';
 import { notificationChannelTypes } from '../factory/notification.factory';
 import { LoggerService } from '../../../libs/common/logger/logger.service';
-import { SMS } from '../dto/create-notification.dto';
+import { SMS } from '../dto/send-notification.dto';
 import { NotificationTemplate } from '../types/notification-template.type';
 
-export class SmsLocalStrategy extends NotificationStrategy {
+export class SmsLocalStrategy implements NotificationStrategy {
   logger: LoggerService = new LoggerService();
   async sendNotification(template: NotificationTemplate, data: SMS[]) {
     if (!template.channelType[notificationChannelTypes.SMS]) {
