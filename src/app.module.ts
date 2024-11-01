@@ -11,6 +11,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { LoggerService } from '../libs/common/logger/logger.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NotificationsModule } from './notifications/notifications.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     AuthModule,
     UsersModule,
     NotificationsModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [

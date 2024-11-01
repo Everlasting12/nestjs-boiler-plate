@@ -33,6 +33,10 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const port = configService.get<string>('PORT');
+
+  // Starts listening for shutdown hooks
+  //  app.enableShutdownHooks();
+
   await app.listen(parseInt(port));
 }
 bootstrap();
