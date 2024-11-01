@@ -11,6 +11,11 @@ import { TransportOptions } from 'nodemailer';
 import { NotificationTemplate } from '../types/notification-template.type';
 import { EMAIL } from '../dto/send-notification.dto';
 import { CreateNotificationDto } from '../dto/create-notification.dto';
+import {
+  Attendee,
+  CalenderEventBuilder,
+  Question,
+} from '../builder/calendar-event.builder';
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SERVICE_HOST,
@@ -49,7 +54,7 @@ export class EmailLocalStrategy implements NotificationStrategy {
 
     const sendEmail = (
       recipient: string,
-      variables: { [key: string]: string } = {},
+      variables: { [key: string]: any } = {},
     ) => {
       this.logger.debug(
         `EmailLocalStrategy ~ sendNotification ~ sendEmail recipient ${recipient} variables ${JSON.stringify(variables)}`,
@@ -59,14 +64,71 @@ export class EmailLocalStrategy implements NotificationStrategy {
         templateVariables,
         variables,
       );
-      if (!missingVariables?.length)
-        return transporter.sendMail({
+      if (!missingVariables?.length) {
+        const emailObject = {
           from: `${process.env.APP_NAME} <${process.env.APP_EMAIL_ID}>`, // sender address
           to: recipient, // list of receivers
           subject: Utility.fillTemplate(content.subject, variables), // Subject line
           html: compiledTemplate(variables), // html body
-        });
-      else {
+          attachments: [],
+        };
+
+        if (variables['isCalendarEvent']) {
+          const {
+            startDate,
+            endDate,
+            allDay,
+            summary,
+            description,
+            location,
+            organiser,
+            attendees,
+            questions,
+            url,
+          } = variables;
+          const eventObj = new CalenderEventBuilder(
+            new Date(startDate),
+            new Date(endDate),
+            summary,
+            allDay,
+          )
+            .setDescription(description)
+            .setLocation(`${location}, ${url}`)
+            .setOrganizer(organiser);
+
+          if (url) eventObj.setUrl(url);
+
+          if (attendees?.length) {
+            const attendeesEmails = attendees?.map((attendee: Attendee) => {
+              eventObj.addAttendee(attendee?.name, attendee?.email);
+              return attendee?.email;
+            });
+            emailObject.to = `${recipient},${attendeesEmails?.join(',')}`;
+          }
+          if (questions?.length) {
+            questions?.forEach(({ answers, question }: Question) => {
+              eventObj.addQuestion(question, answers);
+            });
+          }
+          const calendarEvent = eventObj.build();
+          this.logger.debug(
+            'EmailLocalStrategy ~ sendNotification ~ calendarEvent:',
+            calendarEvent,
+          );
+
+          emailObject.attachments.push({
+            filename: 'invitation.ics',
+            content: calendarEvent.toString(),
+            contentType: 'text/calendar; charset=utf-8',
+          });
+        }
+        this.logger.debug(
+          '🚀EMAIL ~ EmailLocalStrategy ~ emailObject:',
+          emailObject,
+        );
+
+        return transporter.sendMail(emailObject);
+      } else {
         this.logger.debug(
           `EmailLocalStrategy ~ sendNotification ~ sendEmail missing variables found ${JSON.stringify(missingVariables)} for recipient ${recipient}`,
         );

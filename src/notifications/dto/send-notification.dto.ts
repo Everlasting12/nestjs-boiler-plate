@@ -34,7 +34,7 @@ export class EMAIL {
 
   @IsOptional()
   @IsObject()
-  variables?: { [key: string]: string };
+  variables?: { [key: string]: any };
 }
 
 export class Payload {
