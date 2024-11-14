@@ -11,10 +11,6 @@ import { PrismaService } from 'src/prisma.service';
     NotificationTemplatesService,
     NotificationTemplatesRepository,
   ],
-  exports: [
-    PrismaService,
-    NotificationTemplatesService,
-    NotificationTemplatesRepository,
-  ],
+  exports: [NotificationTemplatesService, NotificationTemplatesRepository],
 })
 export class NotificationTemplatesModule {}

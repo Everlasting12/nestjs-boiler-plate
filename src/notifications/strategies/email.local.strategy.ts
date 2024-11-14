@@ -69,7 +69,9 @@ export class EmailLocalStrategy implements NotificationStrategy {
           from: `${process.env.APP_NAME} <${process.env.APP_EMAIL_ID}>`, // sender address
           to: recipient, // list of receivers
           subject: Utility.fillTemplate(content.subject, variables), // Subject line
-          html: compiledTemplate(variables), // html body
+          html: content.templateName
+            ? compiledTemplate(variables)
+            : Utility.fillTemplate(content.body, variables), // html body
           attachments: [],
         };
 

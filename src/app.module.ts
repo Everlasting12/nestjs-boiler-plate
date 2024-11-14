@@ -12,6 +12,9 @@ import { LoggerService } from '../libs/common/logger/logger.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NotificationsModule } from './notifications/notifications.module';
 import { HealthModule } from './health/health.module';
+import { PermissionsModule } from './access-management/permissions/permissions.module';
+import { RolesModule } from './access-management/roles/roles.module';
+import { UserRolesModule } from './access-management/user-roles/user-roles.module';
 
 @Module({
   imports: [
@@ -27,6 +30,9 @@ import { HealthModule } from './health/health.module';
     UsersModule,
     NotificationsModule,
     HealthModule,
+    PermissionsModule,
+    RolesModule,
+    UserRolesModule,
   ],
   controllers: [AppController],
   providers: [

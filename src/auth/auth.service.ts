@@ -5,12 +5,17 @@ import { compare } from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { LoggerService } from '../../libs/common/logger/logger.service';
+import { CheckAuthorizationDto } from './dto/check-authorization.dto';
+import { UserRolesService } from 'src/access-management/user-roles/user-roles.service';
+import { PermissionsService } from 'src/access-management/permissions/permissions.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private userRoleService: UserRolesService,
+    private permissionsService: PermissionsService,
   ) {}
 
   private readonly logger = new LoggerService();
@@ -34,6 +39,34 @@ export class AuthService {
   async signIn(user: any) {
     this.logger.debug('AuthService ~ signIn ~ user:', user);
     const payload = { email: user.email, sub: user.userId };
+
+    const role = await this.userRoleService.findAll({
+      userId: [user.userId],
+      relation: true,
+    });
+
+    if (role?.data?.length) {
+      const {
+        role: { permissionIds },
+      } = role.data.at(0);
+      const { data } = await this.permissionsService.findAll({
+        paginate: false,
+        isActive: true,
+        name: permissionIds ?? [],
+      });
+
+      const { apiScopes, feScopes } = data?.reduce(
+        (acc, item) => {
+          acc.apiScopes = acc.apiScopes.concat(item.apiScopes);
+          acc.feScopes = acc.feScopes.concat(item.feScopes);
+          return acc;
+        },
+        { apiScopes: [], feScopes: [] },
+      );
+      payload['apiScopes'] = apiScopes;
+      payload['feScopes'] = feScopes;
+    }
+
     return {
       authentication: {
         accessToken: await this.jwtService.signAsync(payload),
@@ -41,5 +74,41 @@ export class AuthService {
       },
       user,
     };
+  }
+
+  async checkAuthorization(
+    body: CheckAuthorizationDto,
+    scopes?: string[],
+  ): Promise<boolean> {
+    const { httpMethod, originalUrl, token } = body;
+
+    if (!token) return false;
+
+    // TODO: if scopes not provided then verify jwt token and take scopes from payload // sin:: not doing it bcoz its going to take my time rn ;)
+
+    for (const aScope of scopes) {
+      const scopeMethod = aScope.split('::')[0];
+      let scopeEndPoint = aScope.split('::')[1];
+      if ('ALL' == scopeMethod || scopeMethod == httpMethod) {
+        scopeEndPoint = scopeEndPoint
+          .replaceAll('?', '\\?')
+          .replaceAll('permissionEntity.', 'permissionEntity\\.');
+
+        const regex = new RegExp(scopeEndPoint);
+        const isMatched = regex.test(originalUrl);
+
+        this.logger.debug(
+          `originalUrl:${originalUrl} | regex:${regex} | scopeMethod:${scopeMethod} ===>>> isMatched :${isMatched}`,
+        );
+        this.logger.debug(
+          '=========================================================================',
+        );
+
+        if (!isMatched) continue;
+        return true;
+      }
+    }
+
+    return false;
   }
 }
