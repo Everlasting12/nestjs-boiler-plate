@@ -47,6 +47,7 @@ export class AuthService {
 
     if (role?.data?.length) {
       const {
+        permissionEntities,
         role: { permissionIds },
       } = role.data.at(0);
       const { data } = await this.permissionsService.findAll({
@@ -55,7 +56,7 @@ export class AuthService {
         name: permissionIds ?? [],
       });
 
-      const { apiScopes, feScopes } = data?.reduce(
+      let { apiScopes, feScopes } = data?.reduce(
         (acc, item) => {
           acc.apiScopes = acc.apiScopes.concat(item.apiScopes);
           acc.feScopes = acc.feScopes.concat(item.feScopes);
@@ -63,6 +64,18 @@ export class AuthService {
         },
         { apiScopes: [], feScopes: [] },
       );
+
+      if (permissionEntities && Object.keys(permissionEntities).length > 0) {
+        for (const [key, value] of Object.entries(permissionEntities)) {
+          apiScopes = apiScopes.map(function (x) {
+            return x.replace(`{{${key}}}`, value);
+          });
+          feScopes = feScopes.map(function (x) {
+            return x.replace(`{{${key}}}`, value);
+          });
+        }
+      }
+
       payload['apiScopes'] = apiScopes;
       payload['feScopes'] = feScopes;
     }

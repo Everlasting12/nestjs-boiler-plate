@@ -16,6 +16,9 @@ export class UsersService {
     private readonly usersRepository: UsersRepository,
     private readonly configService: ConfigService<EnvironmentVariables>,
   ) {}
+  async findAll(query: Prisma.UserWhereUniqueInput) {
+    return await this.usersRepository.findAll(query);
+  }
   async findOne(query: Prisma.UserWhereUniqueInput) {
     return await this.usersRepository.findOne(query);
   }

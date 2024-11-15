@@ -6,6 +6,11 @@ import { PrismaService } from 'src/prisma.service';
 export class UsersRepository {
   constructor(private prisma: PrismaService) {}
 
+  async findAll(query: Prisma.UserWhereUniqueInput) {
+    return this.prisma.user.findMany({
+      where: query,
+    });
+  }
   async findOne(query: Prisma.UserWhereUniqueInput) {
     return this.prisma.user.findUnique({
       where: query,

@@ -6,6 +6,7 @@ import {
   Param,
   ParseFilePipe,
   Patch,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -19,6 +20,11 @@ import { FileInterceptor } from '@nestjs/platform-express';
 })
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get()
+  async findAll(@Query() query: any) {
+    return await this.usersService.findAll(query);
+  }
 
   @Get(':userId')
   async findByUserId(@Param('userId') userId: string) {
