@@ -49,7 +49,22 @@ export class UserRolesRepository {
       restQuery.userId = { in: restQuery.userId } as any;
     }
 
-    const includeRelations = relation ? { role: true } : undefined;
+    const includeRelations = relation
+      ? {
+          role: {
+            select: {
+              name: true,
+              permissionIds: true,
+            },
+          },
+          user: {
+            select: {
+              email: true,
+              name: true,
+            },
+          },
+        }
+      : undefined;
 
     if (!paginate) {
       const data = await this.prisma.userRole.findMany({

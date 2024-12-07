@@ -48,6 +48,7 @@ export class AuthService {
     if (role?.data?.length) {
       const {
         permissionEntities,
+        roleId,
         role: { permissionIds },
       } = role.data.at(0);
       const { data } = await this.permissionsService.findAll({
@@ -78,6 +79,7 @@ export class AuthService {
 
       payload['apiScopes'] = apiScopes;
       payload['feScopes'] = feScopes;
+      payload['roleId'] = roleId;
     }
 
     return {

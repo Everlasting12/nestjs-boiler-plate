@@ -19,7 +19,7 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: 'http://localhost:3000', // Frontend URL
+    origin: 'http://localhost:5173', // Frontend URL
     credentials: true, // Enable credentials (cookies)
   });
   app.use(helmet());
