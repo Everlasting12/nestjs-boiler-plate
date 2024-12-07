@@ -9,18 +9,26 @@ datasource db {
 }
 
 model User {
-  id             Int        @id @default(autoincrement())
-  userId         String     @unique @default(uuid())
-  email          String     @unique
+  id             Int       @id @default(autoincrement())
+  userId         String    @unique @default(uuid())
+  email          String    @unique
   name           String
   password       String
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-  isActive       Boolean    @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  isActive       Boolean   @default(true)
   firebaseTokens String[]
   profilePic     String?
   lastLogin      DateTime?
-  userRole       UserRole[]
+
+  // Relations
+  userRole      UserRole[] // Assuming a UserRole model exists
+  assignedTasks Task[]        @relation("AssignedToUser") // Relation for tasks assigned to this user
+  createdTasks  Task[]        @relation("CreatedByUser") // Relation for tasks created by this user
+  projects      Project[]     @relation("CreatedByUser") // Relation for projects created by this user
+  createdTeams  Team[]        @relation("CreatedByUser") // Teams created by this user
+  leadTeams     Team[]        @relation("TeamLead")
+  TaskHistory   TaskHistory[]
 }
 
 model Notification {
@@ -61,17 +69,16 @@ model UserRole {
 }
 
 model Role {
-  id                 Int      @id @default(autoincrement())
-  roleId             String   @unique
+  id                 Int        @id @default(autoincrement())
+  roleId             String     @unique
   name               String
   permissionIds      String[]
   permissionEntities Json
-  isDefault          Boolean  @default(true)
-  isActive           Boolean  @default(true)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  userRole UserRole[]
+  isDefault          Boolean    @default(true)
+  isActive           Boolean    @default(true)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  userRole           UserRole[]
 }
 
 model Permission {
@@ -84,4 +91,86 @@ model Permission {
   isActive           Boolean  @default(true)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+}
+
+model Project {
+  id          Int       @id @default(autoincrement())
+  projectId   String    @unique @default(uuid())
+  name        String
+  description String?
+  status      String // e.g., "active", "completed", "archived"
+  priority    String? // e.g., "high", "medium", "low"
+  category    String
+  startDate   DateTime
+  endDate     DateTime?
+  createdById String
+  createdBy   User      @relation(fields: [createdById], references: [userId], name: "CreatedByUser") // Links to User
+
+  // Relations
+  tasks Task[] @relation("ProjectTasks") // Relation to tasks
+  teams Team[] @relation("ProjectTeams") // Relation to teams
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Task {
+  id           Int     @id @default(autoincrement())
+  taskId       String  @unique @default(uuid())
+  title        String
+  drawingTitle String?
+  description  String?
+  status       String
+  priority     String
+  dueTime      Int
+  projectId    String
+  project      Project @relation(fields: [projectId], references: [projectId], name: "ProjectTasks")
+
+  assignedToId String
+  assignedTo   User   @relation(fields: [assignedToId], references: [userId], name: "AssignedToUser")
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [userId], name: "CreatedByUser")
+
+  history Json?
+
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  TaskHistory TaskHistory[]
+}
+
+model Team {
+  id      String   @id @default(uuid())
+  name    String   @unique
+  members String[]
+
+  // Relations
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [userId], name: "CreatedByUser") // User who created the team
+
+  teamLeadId String
+  teamLead   User   @relation(fields: [teamLeadId], references: [userId], name: "TeamLead") // User who leads the team
+
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [projectId], name: "ProjectTeams") // Associated project
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TaskHistory {
+  id     Int    @id @default(autoincrement())
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [taskId])
+
+  event     String // e.g., STATUS_CHANGE, PRIORITY_CHANGE, etc.
+  timestamp DateTime @default(now())
+  details   Json?
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [userId])
+
+  isActive Boolean @default(true)
 }
