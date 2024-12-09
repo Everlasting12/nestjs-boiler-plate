@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  Req,
 } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
 import {
@@ -15,13 +16,11 @@ import {
 } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { PermissionQueryDto } from './dto/get-permission-query.dto';
-import { Public } from '../../auth/guards/jwt-auth.guard';
 
 @Controller({ path: 'permissions', version: '1' })
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
-  @Public()
   @Post()
   create(@Body() createPermissionDto: CreatePermissionDto) {
     return this.permissionsService.create(createPermissionDto);

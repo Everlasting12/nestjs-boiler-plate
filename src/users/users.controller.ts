@@ -13,6 +13,7 @@ import {
 import { UsersService } from './users.service';
 import { Express } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UserQueryDto } from './dto/get-user-query.dto';
 
 @Controller({
   version: '1',
@@ -22,7 +23,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  async findAll(@Query() query: any) {
+  async findAll(@Query() query: UserQueryDto) {
     return await this.usersService.findAll(query);
   }
 

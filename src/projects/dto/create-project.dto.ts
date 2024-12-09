@@ -38,10 +38,7 @@ export class CreateProjectDto {
   @IsDateString()
   endDate?: string;
 
-  @IsNotEmpty()
-  @IsString()
-  @IsUUID()
-  createdById: string;
+  createdById?: string;
 
   @IsOptional()
   @IsBoolean()

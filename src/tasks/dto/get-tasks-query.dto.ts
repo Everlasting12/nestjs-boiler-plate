@@ -16,6 +16,10 @@ export class TaskQueryDto extends PaginationDto {
   projectId?: string;
 
   @IsOptional()
+  @IsString()
+  createdById?: string;
+
+  @IsOptional()
   @IsBoolean()
   @Transform((field: TransformFnParams) => field.value === 'true')
   isActive?: boolean;

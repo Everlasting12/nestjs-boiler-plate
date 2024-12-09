@@ -16,7 +16,7 @@ export class TeamsRepository {
 
   async findAll(query: TeamQueryDto) {
     const { paginate, relation, skip, limit, ...restQuery } = query;
-
+    delete restQuery.isActive;
     if (restQuery.name) {
       restQuery.name = {
         contains: restQuery.name,
@@ -87,8 +87,15 @@ export class TeamsRepository {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} team`;
+  async findOne(query: Prisma.TeamWhereUniqueInput) {
+    return this.prisma.team.findUnique({
+      where: query,
+    });
+  }
+  async findByQuery(query: Prisma.TeamWhereInput) {
+    return this.prisma.team.findFirst({
+      where: query,
+    });
   }
 
   update(id: number, updateTeamDto: UpdateTeamDto) {

@@ -1,13 +1,17 @@
 import { Transform, TransformFnParams } from 'class-transformer';
-import { IsBoolean, IsOptional } from 'class-validator';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { PaginationDto } from 'libs/common/dto/pagination.dto';
 
-export class TeamQueryDto extends PaginationDto {
+export class UserQueryDto extends PaginationDto {
   @IsOptional()
   name?: string;
 
   @IsOptional()
-  projectId?: string;
+  @IsString({ each: true })
+  userIds?: string[];
+
+  @IsOptional()
+  email?: string;
 
   @IsOptional()
   @IsBoolean()
@@ -18,4 +22,9 @@ export class TeamQueryDto extends PaginationDto {
   @IsBoolean()
   @Transform((field: TransformFnParams) => field.value === 'true')
   relation?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform((field: TransformFnParams) => field.value === 'true')
+  unassingedUsers?: boolean;
 }

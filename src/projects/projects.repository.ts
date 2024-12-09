@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateProjectDto } from './dto/update-project.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Prisma } from '@prisma/client';
 import { ProjectQueryDto } from './dto/get-project-query.dto';
@@ -15,7 +14,7 @@ export class ProjectsRepository {
   }
 
   async findAll(query: ProjectQueryDto) {
-    const { paginate, relation, skip, limit, ...restQuery } = query;
+    const { paginate, select, relation, skip, limit, ...restQuery } = query;
 
     if (restQuery.name) {
       restQuery.name = {
@@ -48,6 +47,9 @@ export class ProjectsRepository {
           updatedAt: 'desc',
         },
         include: includeRelations,
+        ...(select?.length
+          ? { select: Object.fromEntries(select.map((field) => [field, true])) }
+          : {}),
       });
       return {
         data,
@@ -68,6 +70,9 @@ export class ProjectsRepository {
         skip,
         take: limit,
         include: includeRelations,
+        ...(select?.length
+          ? { select: Object.fromEntries(select.map((field) => [field, true])) }
+          : {}),
       }),
     ]);
 
@@ -79,15 +84,21 @@ export class ProjectsRepository {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} project`;
+  async findOne(projectId: string) {
+    return `This action returns a #${projectId} project`;
   }
 
-  update(id: number, updateProjectDto: UpdateProjectDto) {
-    return `This action updates a #${id} project`;
+  async update(
+    query: Prisma.ProjectWhereUniqueInput,
+    updateProjectDto: Prisma.ProjectUpdateInput,
+  ) {
+    return await this.prisma.project.update({
+      where: query,
+      data: updateProjectDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} project`;
+  async remove(projectId: string) {
+    return `This action removes a #${projectId} project`;
   }
 }

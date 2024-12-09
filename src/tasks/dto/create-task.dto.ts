@@ -33,16 +33,13 @@ export class CreateTaskDto {
 
   @IsNotEmpty()
   @IsString()
-  assignedTo: string;
-
-  @IsNotEmpty()
-  @IsString()
-  createdById: string;
+  assignedToId: string;
 
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
 
+  createdById?: string;
   projectId?: string;
   createdAt?: Date;
   updatedAt?: Date;

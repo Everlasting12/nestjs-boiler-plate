@@ -27,6 +27,9 @@ export class TasksRepository {
         in: restQuery.priority,
       } as any;
     }
+    if (restQuery.createdById) {
+      restQuery.createdById = { equals: restQuery.createdById } as any;
+    }
 
     const includeRelations = relation
       ? {
@@ -47,6 +50,7 @@ export class TasksRepository {
           project: {
             select: {
               name: true,
+              category: true,
             },
           },
         }

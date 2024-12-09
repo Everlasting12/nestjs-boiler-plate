@@ -7,20 +7,23 @@ import {
   Param,
   Delete,
   Query,
+  Req,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectQueryDto } from './dto/get-project-query.dto';
 import { Public } from '../auth/guards/jwt-auth.guard';
+import { Request } from 'express';
 
 @Controller({ path: 'projects', version: '1' })
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
-  @Public()
+  // @Public()
   @Post()
-  create(@Body() createProjectDto: CreateProjectDto) {
-    return this.projectsService.create(createProjectDto);
+  create(@Req() req: Request, @Body() createProjectDto: CreateProjectDto) {
+    const createdById = req['userId'];
+    return this.projectsService.create(createdById, createProjectDto);
   }
   @Public()
   @Get()
@@ -28,18 +31,21 @@ export class ProjectsController {
     return this.projectsService.findAll(query);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.projectsService.findOne(+id);
+  @Get(':projectId')
+  findOne(@Param('projectId') projectId: string) {
+    return this.projectsService.findOne(projectId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
-    return this.projectsService.update(+id, updateProjectDto);
+  @Patch(':projectId')
+  update(
+    @Param('projectId') projectId: string,
+    @Body() updateProjectDto: UpdateProjectDto,
+  ) {
+    return this.projectsService.update(projectId, updateProjectDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.projectsService.remove(+id);
+  @Delete(':projectId')
+  remove(@Param('projectId') projectId: string) {
+    return this.projectsService.remove(projectId);
   }
 }

@@ -17,13 +17,11 @@ import {
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UserRoleQueryDto } from './dto/get-user-role-query.dto';
 import { Request } from 'express';
-import { Public } from '../../auth/guards/jwt-auth.guard';
 
 @Controller({ path: 'user-roles', version: '1' })
 export class UserRolesController {
   constructor(private readonly userRolesService: UserRolesService) {}
 
-  @Public()
   @Post()
   create(@Body() createUserRoleDto: CreateUserRoleDto) {
     return this.userRolesService.create(createUserRoleDto);

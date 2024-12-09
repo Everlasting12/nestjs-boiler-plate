@@ -3,13 +3,19 @@ import { CreateTeamDto } from './dto/create-team.dto';
 import { UpdateTeamDto } from './dto/update-team.dto';
 import { TeamQueryDto } from './dto/get-team-query.dto';
 import { TeamsRepository } from './teams.repository';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class TeamsService {
-  constructor(private readonly teamRepository: TeamsRepository) {}
+  constructor(
+    private readonly teamRepository: TeamsRepository,
+    private readonly userService: UsersService,
+  ) {}
 
-  async create(createTeamDto: CreateTeamDto) {
-    const { createdById, teamLeadId, projectId } = createTeamDto;
+  async create(createdById: string, createTeamDto: CreateTeamDto) {
+    const { teamLeadId, projectId } = createTeamDto;
+    delete createTeamDto.projectId;
+    delete createTeamDto.teamLeadId;
     return await this.teamRepository.create({
       ...createTeamDto,
       createdBy: {
@@ -28,8 +34,22 @@ export class TeamsService {
     return await this.teamRepository.findAll(query);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} team`;
+  async getMembers(teamId: string) {
+    const team = await this.findOne(teamId);
+    const members = await this.userService.findAll({
+      userIds: team.members,
+      paginate: false,
+      select: ['userId', 'name', 'email'],
+    });
+    return members;
+  }
+
+  findOne(teamId: string) {
+    return this.teamRepository.findOne({ id: teamId });
+  }
+
+  async findByQuery(query: TeamQueryDto) {
+    return await this.teamRepository.findByQuery(query);
   }
 
   update(id: number, updateTeamDto: UpdateTeamDto) {

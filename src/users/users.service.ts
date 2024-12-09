@@ -9,6 +9,7 @@ import { hash, genSalt } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import { EnvironmentVariables } from '../../libs/common/environment-variable';
+import { UserQueryDto } from './dto/get-user-query.dto';
 
 @Injectable()
 export class UsersService {
@@ -16,8 +17,16 @@ export class UsersService {
     private readonly usersRepository: UsersRepository,
     private readonly configService: ConfigService<EnvironmentVariables>,
   ) {}
-  async findAll(query: Prisma.UserWhereUniqueInput) {
-    return await this.usersRepository.findAll(query);
+  async findAll(query: UserQueryDto) {
+    const { unassingedUsers, ...restQuery } = query;
+    const users = await this.usersRepository.findAll(restQuery);
+    if (unassingedUsers) {
+      if (users.total) {
+        users.data = users.data.filter((u) => !u?.userRole?.length);
+        users.total = users.data.length;
+      }
+    }
+    return users;
   }
   async findOne(query: Prisma.UserWhereUniqueInput) {
     return await this.usersRepository.findOne(query);

@@ -21,16 +21,22 @@ export class RolesRepository {
   }
 
   async findAll(query: RoleQueryDto) {
-    const { paginate, skip, limit, ...restQuery } = query;
+    const { paginate, select, skip, limit, ...restQuery } = query;
 
-    restQuery.roleId = { in: restQuery.roleId } as any;
+    if (restQuery.roleId) {
+      restQuery.roleId = { in: restQuery.roleId } as any;
+    }
 
     if (!paginate) {
       const data = await this.prisma.role.findMany({
+        relationLoadStrategy: 'join',
         where: restQuery as Prisma.RoleWhereInput,
         orderBy: {
           updatedAt: 'desc',
         },
+        ...(select?.length
+          ? { select: Object.fromEntries(select.map((field) => [field, true])) }
+          : {}),
       });
       return {
         data,

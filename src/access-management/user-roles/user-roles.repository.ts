@@ -40,7 +40,7 @@ export class UserRolesRepository {
   }
 
   async findAll(query: UserRoleQueryDto) {
-    const { paginate, relation, skip, limit, ...restQuery } = query;
+    const { paginate, relation, select, skip, limit, ...restQuery } = query;
 
     if (restQuery.roleId) {
       restQuery.roleId = { in: restQuery.roleId } as any;
@@ -61,6 +61,7 @@ export class UserRolesRepository {
             select: {
               email: true,
               name: true,
+              userId: true,
             },
           },
         }
@@ -74,6 +75,9 @@ export class UserRolesRepository {
           updatedAt: 'desc',
         },
         include: includeRelations,
+        ...(select?.length
+          ? { select: Object.fromEntries(select.map((field) => [field, true])) }
+          : {}),
       });
       return {
         total: data.length,
@@ -94,6 +98,9 @@ export class UserRolesRepository {
         skip,
         take: limit,
         include: includeRelations,
+        ...(select?.length
+          ? { select: Object.fromEntries(select.map((field) => [field, true])) }
+          : {}),
       }),
     ]);
 
