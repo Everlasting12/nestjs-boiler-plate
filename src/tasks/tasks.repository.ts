@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateTaskDto } from './dto/update-task.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Prisma } from '@prisma/client';
 import { TaskQueryDto } from './dto/get-tasks-query.dto';
@@ -95,13 +94,47 @@ export class TasksRepository {
     };
   }
 
-  async findOne(id: number) {
-    return `This action returns a #${id} task`;
+  async findOne(query: TaskQueryDto) {
+    const { relation, ...resQuery } = query;
+    const includeRelations = relation
+      ? {
+          assignedTo: {
+            select: {
+              userId: true,
+              email: true,
+              name: true,
+            },
+          },
+          createdBy: {
+            select: {
+              userId: true,
+              email: true,
+              name: true,
+            },
+          },
+          project: {
+            select: {
+              name: true,
+              category: true,
+            },
+          },
+        }
+      : undefined;
+
+    return await this.prisma.task.findUnique({
+      where: resQuery as Prisma.TaskWhereUniqueInput,
+      include: includeRelations,
+    });
   }
 
-  async update(id: number, updateTaskDto: UpdateTaskDto) {
-    console.log(' TasksRepository ~ update ~ updateTaskDto:', updateTaskDto);
-    return `This action updates a #${id} task`;
+  async update(
+    updateQuery: Prisma.TaskWhereUniqueInput,
+    updateTaskDto: Prisma.TaskUpdateInput,
+  ) {
+    return await this.prisma.task.update({
+      where: updateQuery,
+      data: updateTaskDto,
+    });
   }
 
   async remove(id: number) {

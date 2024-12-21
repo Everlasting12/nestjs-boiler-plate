@@ -26,6 +26,11 @@ export class ProjectsRepository {
         in: restQuery.status,
       } as any;
     }
+    if (restQuery.projectId) {
+      restQuery.projectId = {
+        in: restQuery.projectId,
+      } as any;
+    }
 
     const includeRelations = relation
       ? {

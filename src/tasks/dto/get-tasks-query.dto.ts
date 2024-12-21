@@ -28,4 +28,8 @@ export class TaskQueryDto extends PaginationDto {
   @IsBoolean()
   @Transform((field: TransformFnParams) => field.value === 'true')
   relation?: boolean;
+
+  @IsOptional()
+  @IsString()
+  taskId?: string;
 }

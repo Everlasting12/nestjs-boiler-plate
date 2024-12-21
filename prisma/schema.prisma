@@ -22,13 +22,14 @@ model User {
   lastLogin      DateTime?
 
   // Relations
-  userRole      UserRole[] // Assuming a UserRole model exists
-  assignedTasks Task[]        @relation("AssignedToUser") // Relation for tasks assigned to this user
-  createdTasks  Task[]        @relation("CreatedByUser") // Relation for tasks created by this user
-  projects      Project[]     @relation("CreatedByUser") // Relation for projects created by this user
-  createdTeams  Team[]        @relation("CreatedByUser") // Teams created by this user
-  leadTeams     Team[]        @relation("TeamLead")
-  TaskHistory   TaskHistory[]
+  userRole         UserRole[] // Assuming a UserRole model exists
+  assignedTasks    Task[]        @relation("AssignedToUser") // Relation for tasks assigned to this user
+  createdTasks     Task[]        @relation("CreatedByUser") // Relation for tasks created by this user
+  projects         Project[]     @relation("CreatedByUser") // Relation for projects created by this user
+  projectTeamLeads Project[]     @relation("ProjectTeamLead") // Relation for projects created by this user
+  createdTeams     Team[]        @relation("CreatedByUser") // Teams created by this user
+  leadTeams        Team[]        @relation("TeamLead")
+  TaskHistory      TaskHistory[]
 }
 
 model Notification {
@@ -94,21 +95,27 @@ model Permission {
 }
 
 model Project {
-  id          Int       @id @default(autoincrement())
-  projectId   String    @unique @default(uuid())
-  name        String
-  description String?
-  status      String // e.g., "active", "completed", "archived"
-  priority    String? // e.g., "high", "medium", "low"
-  category    String
-  startDate   DateTime
-  endDate     DateTime?
-  createdById String
-  createdBy   User      @relation(fields: [createdById], references: [userId], name: "CreatedByUser") // Links to User
+  id            Int       @id @default(autoincrement())
+  projectId     String    @unique @default(uuid())
+  projectCode   String
+  clientName    String
+  clientEmailId String?
+  name          String
+  location      String
+  status        String
+  priority      String?
+  description   String?
+  category      String
+  startDate     DateTime
+  endDate       DateTime?
+  createdById   String
+  createdBy     User      @relation(fields: [createdById], references: [userId], name: "CreatedByUser") // Links to User
+
+  teamLeadId String
+  teamLead   User   @relation(fields: [teamLeadId], references: [userId], name: "ProjectTeamLead")
 
   // Relations
   tasks Task[] @relation("ProjectTasks") // Relation to tasks
-  teams Team[] @relation("ProjectTeams") // Relation to teams
 
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -116,16 +123,15 @@ model Project {
 }
 
 model Task {
-  id           Int     @id @default(autoincrement())
-  taskId       String  @unique @default(uuid())
-  title        String
-  drawingTitle String?
+  id           Int      @id @default(autoincrement())
+  taskId       String   @unique @default(uuid())
+  drawingTitle String
   description  String?
   status       String
   priority     String
-  dueTime      Int
+  dueDate      DateTime
   projectId    String
-  project      Project @relation(fields: [projectId], references: [projectId], name: "ProjectTasks")
+  project      Project  @relation(fields: [projectId], references: [projectId], name: "ProjectTasks")
 
   assignedToId String
   assignedTo   User   @relation(fields: [assignedToId], references: [userId], name: "AssignedToUser")
@@ -152,9 +158,6 @@ model Team {
 
   teamLeadId String
   teamLead   User   @relation(fields: [teamLeadId], references: [userId], name: "TeamLead") // User who leads the team
-
-  projectId String?
-  project   Project? @relation(fields: [projectId], references: [projectId], name: "ProjectTeams") // Associated project
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

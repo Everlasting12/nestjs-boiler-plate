@@ -1,10 +1,10 @@
 import {
   IsBoolean,
   IsDateString,
+  IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
 } from 'class-validator';
 
 export class CreateProjectDto {
@@ -37,6 +37,22 @@ export class CreateProjectDto {
   @IsOptional()
   @IsDateString()
   endDate?: string;
+
+  @IsString()
+  projectCode: string;
+
+  @IsString()
+  clientName: string;
+
+  @IsString()
+  location: string;
+
+  @IsString()
+  teamLeadId: string;
+
+  @IsOptional()
+  @IsString()
+  clientEmailId?: string;
 
   createdById?: string;
 

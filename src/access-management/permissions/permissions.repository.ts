@@ -23,7 +23,7 @@ export class PermissionsRepository {
   async findAll(query: PermissionQueryDto) {
     const { paginate, skip, limit, ...restQuery } = query;
 
-    restQuery.name = { in: restQuery.name } as any;
+    if (restQuery?.name) restQuery.name = { in: restQuery.name } as any;
 
     if (!paginate) {
       const data = await this.prisma.permission.findMany({

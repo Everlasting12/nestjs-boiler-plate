@@ -7,6 +7,9 @@ export class ProjectQueryDto extends PaginationDto {
   name?: string;
 
   @IsOptional()
+  projectId?: string[];
+
+  @IsOptional()
   @IsArray()
   status?: string[];
 

@@ -1,16 +1,12 @@
 import {
   IsBoolean,
+  IsDateString,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
 
 export class CreateTaskDto {
-  @IsNotEmpty()
-  @IsString()
-  title: string;
-
   @IsNotEmpty()
   @IsString()
   drawingTitle: string;
@@ -28,16 +24,15 @@ export class CreateTaskDto {
   priority: string;
 
   @IsNotEmpty()
-  @IsNumber()
-  dueTime: number;
-
-  @IsNotEmpty()
   @IsString()
   assignedToId: string;
 
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @IsDateString()
+  dueDate: string;
 
   createdById?: string;
   projectId?: string;

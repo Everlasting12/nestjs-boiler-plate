@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   Query,
-  Req,
 } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
 import {

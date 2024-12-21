@@ -125,7 +125,7 @@ export class EmailLocalStrategy implements NotificationStrategy {
           });
         }
         this.logger.debug(
-          '🚀EMAIL ~ EmailLocalStrategy ~ emailObject:',
+          'EMAIL ~ EmailLocalStrategy ~ emailObject:',
           emailObject,
         );
 

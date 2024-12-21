@@ -54,10 +54,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     ]);
 
     if (!isValidUser) {
-      console.log(
-        '🚀 ~ JwtAuthGuard ~ canActivate ~ isValidUser:',
-        isValidUser,
-      );
+      console.log('JwtAuthGuard ~ canActivate ~ isValidUser:', isValidUser);
       throw new UnauthorizedException('Invalid or expired token');
     }
 

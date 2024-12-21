@@ -19,8 +19,10 @@ async function bootstrap() {
     }),
   );
   app.enableCors({
-    origin: 'http://localhost:5173', // Frontend URL
-    credentials: true, // Enable credentials (cookies)
+    origin: '*', // Allow all origins during development
+    credentials: true, // Optional if you need cookies or authentication headers
+    // origin: 'http://localhost:5173', // Frontend URL
+    // credentials: true, // Enable credentials (cookies)
   });
   app.use(helmet());
   const config = new DocumentBuilder()

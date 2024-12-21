@@ -7,14 +7,17 @@ import { ProjectQueryDto } from './dto/get-project-query.dto';
 @Injectable()
 export class ProjectsService {
   constructor(private readonly projectRepository: ProjectsRepository) {}
-  async create(createdById: string, createProjectDto: CreateProjectDto) {
-    const { startDate } = createProjectDto;
+  async create(createdById: string, _createProjectDto: CreateProjectDto) {
+    const { startDate, teamLeadId, ...createProjectDto } = _createProjectDto;
 
     return await this.projectRepository.create({
       ...createProjectDto,
       startDate: new Date(startDate),
       createdBy: {
         connect: { userId: createdById },
+      },
+      teamLead: {
+        connect: { userId: teamLeadId },
       },
     });
   }

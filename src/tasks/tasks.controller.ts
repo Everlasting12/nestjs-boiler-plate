@@ -14,7 +14,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskQueryDto } from './dto/get-tasks-query.dto';
 
-@Controller({ path: 'project/:projectId/tasks', version: '1' })
+@Controller({ path: 'projects/:projectId/tasks', version: '1' })
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
@@ -40,14 +40,22 @@ export class TasksController {
   ) {
     return this.tasksService.changeStatus(taskId, projectId);
   }
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.tasksService.findOne(+id);
+  @Get(':taskId')
+  findOne(
+    @Param('projectId') projectId: string,
+    @Param('taskId') taskId: string,
+    @Query() query: TaskQueryDto,
+  ) {
+    return this.tasksService.findOne(taskId, projectId, query);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.tasksService.update(+id, updateTaskDto);
+  @Patch(':taskId')
+  update(
+    @Param('taskId') taskId: string,
+    @Param('projectId') projectId: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+  ) {
+    return this.tasksService.update(taskId, projectId, updateTaskDto);
   }
 
   @Delete(':id')

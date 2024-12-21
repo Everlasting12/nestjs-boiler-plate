@@ -67,19 +67,30 @@ export class AuthService {
       );
 
       if (permissionEntities && Object.keys(permissionEntities).length > 0) {
-        for (const [key, value] of Object.entries(permissionEntities)) {
-          apiScopes = apiScopes.map(function (x) {
-            return x.replace(`{{${key}}}`, value);
-          });
-          feScopes = feScopes.map(function (x) {
-            return x.replace(`{{${key}}}`, value);
-          });
+        const replaceScopes = (
+          scopes: string[],
+          key: string,
+          values: string[],
+        ): string[] => {
+          const result = new Set<string>(); // Use a Set to handle duplicates
+          for (const scope of scopes) {
+            for (const val of values) {
+              result.add(scope.replace(`{{${key}}}`, val));
+            }
+          }
+          return Array.from(result); // Convert Set back to an array
+        };
+
+        for (const [key, values] of Object.entries(permissionEntities)) {
+          apiScopes = replaceScopes(apiScopes, key, values);
+          feScopes = replaceScopes(feScopes, key, values); // Deduplication happens here
         }
       }
 
       payload['apiScopes'] = apiScopes;
       payload['feScopes'] = feScopes;
       payload['roleId'] = roleId;
+      payload['permissionEntities'] = permissionEntities;
     }
 
     return {

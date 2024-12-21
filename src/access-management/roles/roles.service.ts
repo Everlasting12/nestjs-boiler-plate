@@ -24,7 +24,6 @@ export class RolesService {
   }
 
   async update(id: number, updateRoleDto: UpdateRoleDto) {
-    console.log('🚀 ~ RolesService ~ update ~ updateRoleDto:', updateRoleDto);
     return `This action updates a #${id} role`;
   }
 

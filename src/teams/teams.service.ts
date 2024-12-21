@@ -13,8 +13,7 @@ export class TeamsService {
   ) {}
 
   async create(createdById: string, createTeamDto: CreateTeamDto) {
-    const { teamLeadId, projectId } = createTeamDto;
-    delete createTeamDto.projectId;
+    const { teamLeadId } = createTeamDto;
     delete createTeamDto.teamLeadId;
     return await this.teamRepository.create({
       ...createTeamDto,
@@ -23,9 +22,6 @@ export class TeamsService {
       },
       teamLead: {
         connect: { userId: teamLeadId },
-      },
-      project: {
-        connect: { projectId: projectId },
       },
     });
   }

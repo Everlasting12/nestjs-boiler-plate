@@ -71,10 +71,6 @@ export class RolesRepository {
   }
 
   async update(id: number, updateRoleDto: UpdateRoleDto) {
-    console.log(
-      '🚀 ~ RolesRepository ~ update ~ updateRoleDto:',
-      updateRoleDto,
-    );
     return `This action updates a #${id} role`;
   }
 

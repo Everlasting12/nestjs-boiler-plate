@@ -4,9 +4,10 @@ import { TasksController } from './tasks.controller';
 import { TasksRepository } from './tasks.repository';
 import { PrismaService } from 'src/prisma.service';
 import { TeamsModule } from '../teams/teams.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
-  imports: [TeamsModule],
+  imports: [TeamsModule, UsersModule],
   controllers: [TasksController],
   providers: [PrismaService, TasksService, TasksRepository],
 })
