@@ -19,7 +19,7 @@ export class CreateUserRoleDto {
   userId: string;
 
   @IsObject()
-  permissionEntities: Record<string, string>;
+  permissionEntities: Record<string, any>;
 
   @IsOptional()
   @IsBoolean()

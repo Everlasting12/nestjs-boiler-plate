@@ -14,11 +14,12 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectQueryDto } from './dto/get-project-query.dto';
 import { Request } from 'express';
+import { User } from '@prisma/client';
 
 @Controller({ path: 'projects', version: '1' })
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
-  
+
   @Post()
   create(@Req() req: Request, @Body() createProjectDto: CreateProjectDto) {
     const createdById = req['userId'];
@@ -26,8 +27,11 @@ export class ProjectsController {
   }
 
   @Get()
-  findAll(@Query() query: ProjectQueryDto) {
-    return this.projectsService.findAll(query);
+  findAll(
+    @Query() query: ProjectQueryDto,
+    @Req() req: Request & { user: User },
+  ) {
+    return this.projectsService.findAll(query, req.user);
   }
 
   @Get(':projectId')

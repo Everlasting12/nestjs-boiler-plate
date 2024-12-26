@@ -114,7 +114,10 @@ export class AuthService {
 
     for (const aScope of scopes) {
       const scopeMethod = aScope.split('::')[0];
-      let scopeEndPoint = aScope.split('::')[1];
+      let scopeEndPoint = aScope
+        .split('::')[1]
+        .replaceAll(/\/\*\//g, '/[^/]+/');
+
       if ('ALL' == scopeMethod || scopeMethod == httpMethod) {
         scopeEndPoint = scopeEndPoint
           .replaceAll('?', '\\?')

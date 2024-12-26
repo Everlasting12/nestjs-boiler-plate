@@ -112,16 +112,58 @@ export class UserRolesRepository {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} userRole`;
+  async findOne(query: UserRoleQueryDto) {
+    const { paginate = false, relation, select, ...restQuery } = query;
+
+    if (restQuery.roleId) {
+      restQuery.roleId = { in: restQuery.roleId } as any;
+    }
+    if (restQuery.userId) {
+      restQuery.userId = { in: restQuery.userId } as any;
+    }
+
+    const includeRelations = relation
+      ? {
+          role: {
+            select: {
+              name: true,
+              permissionIds: true,
+            },
+          },
+          user: {
+            select: {
+              email: true,
+              name: true,
+              userId: true,
+            },
+          },
+        }
+      : undefined;
+
+    if (!paginate) {
+      const data = await this.prisma.userRole.findFirst({
+        relationLoadStrategy: 'join',
+        where: restQuery as Prisma.UserRoleWhereInput,
+        orderBy: {
+          updatedAt: 'desc',
+        },
+        include: includeRelations,
+        ...(select?.length
+          ? { select: Object.fromEntries(select.map((field) => [field, true])) }
+          : {}),
+      });
+      return {
+        total: data.length,
+        data,
+      };
+    }
   }
 
   async update(id: number, updateUserRoleDto: UpdateUserRoleDto) {
-    console.log(
-      'UserRolesRepository ~ update ~ updateUserRoleDto:',
-      updateUserRoleDto,
-    );
-    return `This action updates a #${id} userRole`;
+    return await this.prisma.userRole.update({
+      where: { id },
+      data: updateUserRoleDto,
+    });
   }
 
   remove(id: number) {

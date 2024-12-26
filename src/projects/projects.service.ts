@@ -3,6 +3,7 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectsRepository } from './projects.repository';
 import { ProjectQueryDto } from './dto/get-project-query.dto';
+import { User, UserRole } from '@prisma/client';
 
 @Injectable()
 export class ProjectsService {
@@ -22,7 +23,18 @@ export class ProjectsService {
     });
   }
 
-  async findAll(query: ProjectQueryDto) {
+  async findAll(
+    query: ProjectQueryDto,
+    user: User & { userRole?: UserRole[] },
+  ) {
+    const { permissionEntities } = user?.userRole?.at(0);
+
+    if (
+      permissionEntities?.['projectId'] &&
+      permissionEntities?.['projectId']?.[0] !== '*'
+    ) {
+      query.projectId = permissionEntities?.['projectId'];
+    }
     return await this.projectRepository.findAll(query);
   }
 

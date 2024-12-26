@@ -12,12 +12,16 @@ export class TaskQueryDto extends PaginationDto {
   status?: string[];
 
   @IsOptional()
-  @IsString()
-  projectId?: string;
+  @IsString({ each: true })
+  projectId?: string[];
+
+  @IsOptional()
+  @IsString({ each: true })
+  createdById?: string[];
 
   @IsOptional()
   @IsString()
-  createdById?: string;
+  assignedToId?: string[];
 
   @IsOptional()
   @IsBoolean()
@@ -28,6 +32,11 @@ export class TaskQueryDto extends PaginationDto {
   @IsBoolean()
   @Transform((field: TransformFnParams) => field.value === 'true')
   relation?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform((field: TransformFnParams) => field.value === 'true')
+  accessLevel?: boolean;
 
   @IsOptional()
   @IsString()

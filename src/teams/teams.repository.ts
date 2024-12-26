@@ -17,9 +17,14 @@ export class TeamsRepository {
   async findAll(query: TeamQueryDto) {
     const { paginate, relation, skip, limit, ...restQuery } = query;
     delete restQuery.isActive;
-    if (restQuery.name) {
+    if (restQuery?.name) {
       restQuery.name = {
         contains: restQuery.name,
+      } as any;
+    }
+    if (restQuery?.teamLeadId) {
+      restQuery.teamLeadId = {
+        in: restQuery.teamLeadId,
       } as any;
     }
 
@@ -32,12 +37,12 @@ export class TeamsRepository {
               name: true,
             },
           },
-          project: {
-            select: {
-              projectId: true,
-              name: true,
-            },
-          },
+          // project: {
+          //   select: {
+          //     projectId: true,
+          //     name: true,
+          //   },
+          // },
           teamLead: {
             select: {
               userId: true,
@@ -92,9 +97,11 @@ export class TeamsRepository {
       where: query,
     });
   }
-  async findByQuery(query: Prisma.TeamWhereInput) {
+  async findByQuery(query: TeamQueryDto) {
+    const { teamLeadId, ...restQuery } = query;
+
     return this.prisma.team.findFirst({
-      where: query,
+      where: restQuery,
     });
   }
 

@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   FileTypeValidator,
   Get,
@@ -6,7 +7,9 @@ import {
   Param,
   ParseFilePipe,
   Patch,
+  Post,
   Query,
+  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -14,6 +17,8 @@ import { UsersService } from './users.service';
 import { Express } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserQueryDto } from './dto/get-user-query.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { User } from '@prisma/client';
 
 @Controller({
   version: '1',
@@ -21,6 +26,14 @@ import { UserQueryDto } from './dto/get-user-query.dto';
 })
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Post()
+  async create(
+    @Req() req: Request & { user: User },
+    @Body() createUserDto: CreateUserDto,
+  ) {
+    return await this.usersService.createUser(createUserDto, req?.user?.userId);
+  }
 
   @Get()
   async findAll(@Query() query: UserQueryDto) {

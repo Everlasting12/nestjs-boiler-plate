@@ -50,7 +50,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     });
 
     const [isValidUser] = await Promise.all([
-      await this.usersService.findOne({ userId: payload.sub }),
+      await this.usersService.findOne({
+        userIds: [payload.sub],
+        relation: true,
+      }),
     ]);
 
     if (!isValidUser) {
@@ -75,6 +78,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     request['userId'] = payload.sub;
+    request['user'] = isValidUser;
     return true;
   }
 

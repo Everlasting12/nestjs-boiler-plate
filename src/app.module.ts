@@ -18,6 +18,7 @@ import { UserRolesModule } from './access-management/user-roles/user-roles.modul
 import { TasksModule } from './tasks/tasks.module';
 import { ProjectsModule } from './projects/projects.module';
 import { TeamsModule } from './teams/teams.module';
+import { ConfigurationsModule } from './configurations/configurations.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { TeamsModule } from './teams/teams.module';
     TasksModule,
     ProjectsModule,
     TeamsModule,
+    ConfigurationsModule,
   ],
   controllers: [AppController],
   providers: [

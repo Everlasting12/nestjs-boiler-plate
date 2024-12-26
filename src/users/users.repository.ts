@@ -79,9 +79,26 @@ export class UsersRepository {
       data,
     };
   }
-  async findOne(query: Prisma.UserWhereUniqueInput) {
-    return this.prisma.user.findUnique({
-      where: query,
+  async findOne(query: UserQueryDto) {
+    const { relation, select, userIds, ...restQuery } = query;
+
+    if (userIds?.length) {
+      restQuery['userId'] = {
+        in: userIds,
+      };
+    }
+    const includeRelations = relation
+      ? {
+          userRole: true,
+        }
+      : undefined;
+
+    return this.prisma.user.findFirst({
+      ...(select?.length
+        ? { select: Object.fromEntries(select.map((field) => [field, true])) }
+        : {}),
+      where: restQuery as Prisma.UserWhereInput,
+      include: includeRelations,
     });
   }
 
@@ -89,5 +106,9 @@ export class UsersRepository {
     return this.prisma.user.create({
       data,
     });
+  }
+
+  async getTotalUserCount() {
+    return await this.prisma.user.count();
   }
 }

@@ -7,15 +7,16 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UsersRepository } from './users.repository';
 import { hash, genSalt } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
-import { Prisma } from '@prisma/client';
 import { EnvironmentVariables } from '../../libs/common/environment-variable';
 import { UserQueryDto } from './dto/get-user-query.dto';
+import { ConfigurationsService } from 'src/configurations/configurations.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly configService: ConfigService<EnvironmentVariables>,
+    private readonly configurationService: ConfigurationsService,
   ) {}
   async findAll(query: UserQueryDto) {
     const { unassingedUsers, ...restQuery } = query;
@@ -28,18 +29,33 @@ export class UsersService {
     }
     return users;
   }
-  async findOne(query: Prisma.UserWhereUniqueInput) {
+  async findOne(query: UserQueryDto) {
     return await this.usersRepository.findOne(query);
   }
   async findByUserId(userId: string) {
-    const user = await this.usersRepository.findOne({ userId, isActive: true });
+    const user = await this.usersRepository.findOne({
+      userIds: [userId],
+      isActive: true,
+    });
     if (!user) {
       throw new BadRequestException('Incorrect userId provided');
     }
     return user;
   }
 
-  async createUser(body: CreateUserDto) {
+  async createUser(body: CreateUserDto, createdById?: string) {
+    const totalUsers = await this.getTotalUserCount();
+
+    const maxAllowedUsers = (await this.configurationService.findOne(
+      'MAX_USERS_COUNT',
+    )) as unknown as { value: number };
+
+    if (totalUsers >= maxAllowedUsers.value) {
+      throw new BadRequestException(
+        `Maximum users (${maxAllowedUsers.value}) limit reached for the system`,
+      );
+    }
+
     const user = await this.findOne({ email: body.email, isActive: true });
     if (user) {
       throw new ConflictException('User with email already exists');
@@ -47,6 +63,18 @@ export class UsersService {
     body.email = body.email.trim().toLowerCase();
     const salt = await genSalt(+this.configService.get('SALT'));
     body.password = await hash(body.password, salt);
-    return await this.usersRepository.createUser(body);
+
+    return await this.usersRepository.createUser({
+      ...body,
+      ...(createdById && {
+        createdBy: {
+          connect: { userId: createdById }, // Link the creator using createdBy
+        },
+      }),
+    });
+  }
+
+  async getTotalUserCount() {
+    return await this.usersRepository.getTotalUserCount();
   }
 }

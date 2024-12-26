@@ -38,8 +38,12 @@ export class UserRolesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userRolesService.findOne(+id);
+  findOne(
+    @Param('id') id: string,
+    @Req() req: Request,
+    @Query() query: UserRoleQueryDto,
+  ) {
+    return this.userRolesService.findOne(query);
   }
 
   @Patch(':id')

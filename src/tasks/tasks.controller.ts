@@ -13,6 +13,7 @@ import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskQueryDto } from './dto/get-tasks-query.dto';
+import { User } from '@prisma/client';
 
 @Controller({ path: 'projects/:projectId/tasks', version: '1' })
 export class TasksController {
@@ -29,17 +30,21 @@ export class TasksController {
   }
 
   @Get()
-  findAll(@Param('projectId') projectId: string, @Query() query: TaskQueryDto) {
-    return this.tasksService.findAll(projectId, query);
+  findAll(
+    @Param('projectId') projectId: string,
+    @Query() query: TaskQueryDto,
+    @Req() req: Request & { user: User },
+  ) {
+    query.createdById = [req.user.userId];
+    query.assignedToId = [req.user.userId];
+    return this.tasksService.findAll(projectId, query, req.user);
   }
 
-  @Patch(':taskId/status')
-  changeStatus(
-    @Param('taskId') taskId: string,
-    @Param('projectId') projectId: string,
-  ) {
-    return this.tasksService.changeStatus(taskId, projectId);
+  @Get('members')
+  findMembers(@Req() req: Request & { user: User }) {
+    return this.tasksService.fetchMembers(req.user);
   }
+
   @Get(':taskId')
   findOne(
     @Param('projectId') projectId: string,

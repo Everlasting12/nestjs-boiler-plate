@@ -14,7 +14,8 @@ export class TasksRepository {
   }
 
   async findAll(query: TaskQueryDto) {
-    const { paginate, relation, skip, limit, ...restQuery } = query;
+    const { paginate, relation, skip, limit, accessLevel, ...restQuery } =
+      query;
 
     if (restQuery.status) {
       restQuery.status = {
@@ -26,8 +27,24 @@ export class TasksRepository {
         in: restQuery.priority,
       } as any;
     }
+
+    if (restQuery.projectId) {
+      restQuery.projectId = {
+        in: restQuery.projectId,
+      } as any;
+    }
     if (restQuery.createdById) {
-      restQuery.createdById = { equals: restQuery.createdById } as any;
+      if (accessLevel) {
+        restQuery['OR'] = [
+          { assignedToId: { in: restQuery.assignedToId } },
+          { createdById: { in: restQuery.createdById } },
+        ];
+        delete restQuery.assignedToId;
+        delete restQuery.createdById;
+      } else {
+        restQuery.createdById = { in: restQuery.createdById } as any;
+        restQuery.assignedToId = { in: restQuery.assignedToId } as any;
+      }
     }
 
     const includeRelations = relation
@@ -50,6 +67,7 @@ export class TasksRepository {
             select: {
               name: true,
               category: true,
+              clientEmailId: true,
             },
           },
         }
@@ -95,7 +113,13 @@ export class TasksRepository {
   }
 
   async findOne(query: TaskQueryDto) {
-    const { relation, ...resQuery } = query;
+    const { relation, ...restQuery } = query;
+
+    if (restQuery.projectId) {
+      restQuery.projectId = {
+        in: restQuery.projectId,
+      } as any;
+    }
     const includeRelations = relation
       ? {
           assignedTo: {
@@ -122,7 +146,7 @@ export class TasksRepository {
       : undefined;
 
     return await this.prisma.task.findUnique({
-      where: resQuery as Prisma.TaskWhereUniqueInput,
+      where: restQuery as Prisma.TaskWhereUniqueInput,
       include: includeRelations,
     });
   }

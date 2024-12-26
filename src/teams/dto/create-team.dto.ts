@@ -13,9 +13,9 @@ export class CreateTeamDto {
   @IsNotEmpty()
   teamLeadId: string;
 
-  @IsNotEmpty()
-  @IsString()
-  projectId: string;
+  // @IsNotEmpty()
+  // @IsString()
+  // projectId: string;
 
   createdById?: string;
   createdAt?: Date;
