@@ -14,6 +14,8 @@ import { Prisma } from '@prisma/client';
 export enum TaskEvents {
   'COMMENT' = 'COMMENT',
   'STATUS_CHANGE' = 'STATUS_CHANGE',
+  'PRIORITY_CHANGE' = 'PRIORITY_CHANGE',
+  'ASSIGNEE_CHANGE' = 'ASSIGNEE_CHANGE',
 }
 
 export class Details {
