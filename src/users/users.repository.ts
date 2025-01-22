@@ -111,4 +111,11 @@ export class UsersRepository {
   async getTotalUserCount() {
     return await this.prisma.user.count();
   }
+
+  async updatePassword(userId: string, hashedNewPassword: string) {
+    return await this.prisma.user.update({
+      where: { userId },
+      data: { password: hashedNewPassword },
+    });
+  }
 }

@@ -77,4 +77,8 @@ export class UsersService {
   async getTotalUserCount() {
     return await this.usersRepository.getTotalUserCount();
   }
+
+  async updatePassword(userId: string, hashedNewPassword: string) {
+    return await this.usersRepository.updatePassword(userId, hashedNewPassword);
+  }
 }

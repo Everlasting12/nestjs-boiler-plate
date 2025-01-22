@@ -1,13 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
-import { compare } from 'bcrypt';
+import { compare, hash, genSalt } from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { LoggerService } from '../../libs/common/logger/logger.service';
 import { CheckAuthorizationDto } from './dto/check-authorization.dto';
 import { UserRolesService } from 'src/access-management/user-roles/user-roles.service';
 import { PermissionsService } from 'src/access-management/permissions/permissions.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { ConfigService } from '@nestjs/config';
+import { EnvironmentVariables } from 'libs/common/environment-variable';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +19,7 @@ export class AuthService {
     private jwtService: JwtService,
     private userRoleService: UserRolesService,
     private permissionsService: PermissionsService,
+    private readonly configService: ConfigService<EnvironmentVariables>,
   ) {}
 
   private readonly logger = new LoggerService();
@@ -139,5 +143,38 @@ export class AuthService {
     }
 
     return false;
+  }
+
+  async changePassword(user: any, body: ChangePasswordDto) {
+    try {
+      const { oldPassword, newPassword } = body;
+
+      const existingUser = await this.usersService.findByUserId(user.userId!);
+      if (!existingUser) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      const isOldPasswordValid = await compare(
+        oldPassword,
+        existingUser.password,
+      );
+      if (!isOldPasswordValid) {
+        throw new UnauthorizedException('Old password is incorrect');
+      }
+
+      const salt = await genSalt(+this.configService.get('SALT'));
+
+      const hashedNewPassword = await hash(newPassword, salt);
+
+      await this.usersService.updatePassword(
+        existingUser.userId,
+        hashedNewPassword,
+      );
+
+      return { message: 'Password successfully changed' };
+    } catch (error) {
+      this.logger.error('AuthService ~ changePassword ~ changePassword', error);
+      throw new UnauthorizedException('Something went wrong');
+    }
   }
 }

@@ -228,7 +228,14 @@ export class TasksService {
       }
     }
     return {
-      data: [{ name: user.name, email: user.email, role: roleId }],
+      data: [
+        {
+          name: user.name,
+          userId: user.userId,
+          email: user.email,
+          role: roleId,
+        },
+      ],
       total: 1,
     };
   }
