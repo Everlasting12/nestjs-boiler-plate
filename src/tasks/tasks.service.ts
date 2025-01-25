@@ -101,11 +101,6 @@ export class TasksService {
     return await this.taskRepository.findAll(query);
   }
 
-  async changeStatus(taskId: string, projectId: string) {
-    // const team = await this.teamService.findByQuery({ projectId });
-
-    return `This action returns a #${taskId} ${projectId} task`;
-  }
   async findOne(taskId: string, projectId: string, _query: TaskQueryDto) {
     const query = {
       ..._query,

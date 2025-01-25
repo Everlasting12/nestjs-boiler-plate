@@ -33,6 +33,15 @@ export class TasksRepository {
         in: restQuery.projectId,
       } as any;
     }
+    if (restQuery?.createdAt) {
+      restQuery.createdAt = {
+        gte: new Date(restQuery?.createdAt?.startDate),
+        lte: new Date(restQuery?.createdAt?.endDate),
+      } as any;
+    } else {
+      delete restQuery.createdAt;
+    }
+
     if (restQuery.createdById) {
       if (accessLevel) {
         restQuery['OR'] = [

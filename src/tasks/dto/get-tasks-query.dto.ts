@@ -1,6 +1,23 @@
 import { Transform, TransformFnParams } from 'class-transformer';
-import { IsArray, IsBoolean, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsDateString,
+  IsObject,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { PaginationDto } from 'libs/common/dto/pagination.dto';
+
+export class CreatedAt {
+  @IsOptional()
+  @IsDateString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  endDate?: string;
+}
 
 export class TaskQueryDto extends PaginationDto {
   @IsOptional()
@@ -41,4 +58,8 @@ export class TaskQueryDto extends PaginationDto {
   @IsOptional()
   @IsString()
   taskId?: string;
+
+  @IsOptional()
+  @IsObject()
+  createdAt?: CreatedAt;
 }
