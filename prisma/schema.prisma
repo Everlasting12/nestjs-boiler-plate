@@ -120,6 +120,8 @@ model Project {
   teamLeadId String
   teamLead   User   @relation(fields: [teamLeadId], references: [userId], name: "ProjectTeamLead")
 
+  constructionArea String
+
   // Relations
   tasks Task[] @relation("ProjectTasks") // Relation to tasks
 
@@ -145,6 +147,9 @@ model Task {
   createdById String
   createdBy   User   @relation(fields: [createdById], references: [userId], name: "CreatedByUser")
 
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id])
+
   history Json?
 
   isActive    Boolean       @default(true)
@@ -154,9 +159,8 @@ model Task {
 }
 
 model Team {
-  id      String   @id @default(uuid())
-  name    String   @unique
-  members String[]
+  id   String @id @default(uuid())
+  name String @unique
 
   // Relations
   createdById String
@@ -167,6 +171,8 @@ model Team {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  Task Task[]
 }
 
 model TaskHistory {

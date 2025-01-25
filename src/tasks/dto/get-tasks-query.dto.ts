@@ -37,8 +37,12 @@ export class TaskQueryDto extends PaginationDto {
   createdById?: string[];
 
   @IsOptional()
-  @IsString()
+  @IsString({ each: true })
   assignedToId?: string[];
+
+  @IsOptional()
+  @IsString({ each: true })
+  teamId?: string[];
 
   @IsOptional()
   @IsBoolean()

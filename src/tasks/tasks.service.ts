@@ -1,7 +1,5 @@
 import {
   BadRequestException,
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -17,18 +15,15 @@ import { ROLES } from 'libs/common/application-constant';
 import { UserRolesService } from 'src/access-management/user-roles/user-roles.service';
 import { UpdateUserRoleDto } from 'src/access-management/user-roles/dto/update-user-role.dto';
 import { LoggerService } from '../../libs/common/logger/logger.service';
+import { RolesService } from 'src/access-management/roles/roles.service';
 @Injectable()
 export class TasksService {
   constructor(
     private readonly taskRepository: TasksRepository,
-
-    @Inject(forwardRef(() => TeamsService))
     private readonly teamService: TeamsService,
-    @Inject(forwardRef(() => UsersService))
     private readonly userService: UsersService,
-
-    @Inject(forwardRef(() => UserRolesService))
     private readonly userRolesService: UserRolesService,
+    private readonly rolesService: RolesService,
   ) {}
 
   private readonly logger = new LoggerService();
@@ -38,9 +33,10 @@ export class TasksService {
     projectId: string,
     createTaskDto: CreateTaskDto,
   ) {
-    const { assignedToId, dueDate } = createTaskDto;
+    const { assignedToId, dueDate, teamId } = createTaskDto;
     delete createTaskDto.createdById;
     delete createTaskDto.assignedToId;
+    delete createTaskDto.teamId;
 
     const newTask = await this.taskRepository.create({
       ...createTaskDto,
@@ -53,6 +49,9 @@ export class TasksService {
       },
       createdBy: {
         connect: { userId: createdById }, // Link the creator using createdBy
+      },
+      team: {
+        connect: { id: teamId }, // Link the creator using createdBy
       },
     });
 
@@ -84,21 +83,71 @@ export class TasksService {
     if (roleId === ROLES.DIRECTOR) {
       delete query.assignedToId;
       delete query.createdById;
-    } else if (roleId === ROLES.TEAM_LEAD) {
+    }
+
+    let teamIds = [];
+    if (roleId === ROLES.TEAM_LEAD) {
       const teams = await this.teamService.findAll({
         teamLeadId: [user.userId],
       });
-
       if (teams?.total) {
-        const teamMembers = teams.data.flatMap((team) => team.members);
-        if (teamMembers?.length) {
-          query.assignedToId = [...teamMembers, user.userId];
-          query.createdById = [...teamMembers, user.userId];
-        }
+        teamIds = teams.data.map((team) => team.id);
       }
     }
 
-    return await this.taskRepository.findAll(query);
+    return await this.taskRepository.findAll(query, teamIds);
+  }
+  async findAllApproval(
+    projectId: string,
+    query: TaskQueryDto,
+    user: User & { userRole?: UserRole[] },
+  ) {
+    const { permissionEntities, roleId } = user?.userRole?.at(0);
+
+    if (projectId && !['null', 'undefined', 'false', '*'].includes(projectId)) {
+      query.projectId = [projectId];
+    } else if (query.projectId?.length) {
+      query.projectId = query.projectId;
+    } else if (
+      permissionEntities?.['projectId'] &&
+      permissionEntities?.['projectId']?.[0] !== '*'
+    ) {
+      query.projectId = permissionEntities?.['projectId'];
+    } else {
+      delete query.projectId;
+    }
+
+    if (roleId === ROLES.DIRECTOR) {
+      delete query.assignedToId;
+      delete query.createdById;
+    }
+
+    let teamIds = [];
+    let directorIds = [];
+    if (roleId === ROLES.TEAM_LEAD) {
+      const teams = await this.teamService.findAll({
+        teamLeadId: [user.userId],
+      });
+      if (teams?.total) {
+        teamIds = teams.data.map((team) => team.id);
+      }
+
+      const directors = await this.userRolesService.findAll({
+        paginate: false,
+        roleId: [ROLES.DIRECTOR],
+      });
+
+      if (directors?.total) {
+        directorIds = directors?.data?.map((director) => director.userId);
+      }
+    }
+
+    return await this.taskRepository.findAllApproval(
+      query,
+      user,
+      teamIds,
+      directorIds,
+    );
   }
 
   async findOne(taskId: string, projectId: string, _query: TaskQueryDto) {
@@ -182,57 +231,78 @@ export class TasksService {
 
   async fetchMembers(user: User & { userRole?: UserRole[] }) {
     const { roleId } = user?.userRole?.at(0);
-    const members = { data: [], total: 0 };
 
-    if (roleId === ROLES.DIRECTOR) {
-      const users = await this.userService.findAll({
-        paginate: false,
-        relation: true,
-      });
-      members.data =
-        users?.data?.map((u) => ({
-          name: u.name,
-          email: u.email,
-          userId: u.userId,
-          role: u.userRole?.at(0)?.['role']?.['name'],
-        })) ?? [];
-      members.total = users.total;
-      return members;
-    } else if (roleId === ROLES.TEAM_LEAD) {
-      const teams = await this.teamService.findAll({
-        teamLeadId: [user.userId],
-      });
+    const role = await this.rolesService.findOne(roleId);
 
-      if (teams?.total) {
-        const teamMembers = teams.data.flatMap((team) => team.members);
-        const users = await this.userService.findAll({
-          userIds: [...teamMembers, user.userId],
-          paginate: false,
-          relation: true,
-        });
+    const query = {
+      roleId: [],
+      paginate: false,
+      relation: true,
+    };
 
-        members.data =
-          users?.data?.map((u) => ({
-            name: u.name,
-            email: u.email,
-            userId: u.userId,
-            role: u.userRole?.at(0)?.['role']?.['name'],
-          })) ?? [];
-        members.total = users.total;
-        return members;
-      }
-    }
-    return {
+    const users = {
       data: [
         {
           name: user.name,
           userId: user.userId,
           email: user.email,
-          role: roleId,
+          role: role.name,
         },
       ],
       total: 1,
     };
+
+    switch (roleId) {
+      case ROLES.DIRECTOR:
+        users.data = [];
+        users.total = 0;
+        query.roleId = Object.values(ROLES);
+        break;
+
+      case ROLES.TEAM_LEAD:
+        query.roleId = Object.values(ROLES).filter(
+          (role) => ![ROLES.DIRECTOR, ROLES.TEAM_LEAD].includes(role),
+        );
+        break;
+      case ROLES.ASSISTANT_TEAM_LEAD:
+        query.roleId = Object.values(ROLES).filter(
+          (role) => ![ROLES.DIRECTOR, ROLES.TEAM_LEAD].includes(role),
+        );
+        break;
+      case ROLES.ARCHITECT:
+        query.roleId = Object.values(ROLES).filter((role) =>
+          [ROLES.INTERN].includes(role),
+        );
+        break;
+      case ROLES.DRAUGHTSMAN:
+        query.roleId = Object.values(ROLES).filter((role) =>
+          [ROLES.INTERN].includes(role),
+        );
+        break;
+      case ROLES.INTERN:
+        break;
+
+      default:
+        break;
+    }
+
+    if (query?.roleId?.length) {
+      const userRoles = await this.userRolesService.findAll(query);
+      if (userRoles?.total) {
+        users.data.push(
+          ...userRoles.data.map((userRole) => ({
+            name: userRole?.['user']?.['name'],
+            email: userRole?.['user']?.['email'],
+            userId: userRole?.['user']?.['userId'],
+            role: userRole?.['role']?.['name'],
+          })),
+        );
+
+        users.total = userRoles.total + users.total;
+      }
+    }
+
+    return users;
   }
 
   remove(id: number) {

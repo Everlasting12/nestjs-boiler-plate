@@ -59,4 +59,8 @@ export class CreateProjectDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @IsNotEmpty()
+  @IsString()
+  constructionArea: string;
 }

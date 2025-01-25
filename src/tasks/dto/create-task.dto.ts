@@ -27,6 +27,10 @@ export class CreateTaskDto {
   @IsString()
   assignedToId: string;
 
+  @IsNotEmpty()
+  @IsString()
+  teamId: string;
+
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;

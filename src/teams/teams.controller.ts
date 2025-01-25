@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { TeamsService } from './teams.service';
 import { CreateTeamDto } from './dto/create-team.dto';
-import { UpdateTeamDto } from './dto/update-team.dto';
 import { Public } from '../auth/guards/jwt-auth.guard';
 import { TeamQueryDto } from './dto/get-team-query.dto';
 import { Request } from 'express';
@@ -32,19 +31,14 @@ export class TeamsController {
     return this.teamsService.findAll(query);
   }
 
-  @Get(':teamId/members')
-  getMembers(@Param('teamId') teamId: string) {
-    return this.teamsService.getMembers(teamId);
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.teamsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTeamDto: UpdateTeamDto) {
-    return this.teamsService.update(+id, updateTeamDto);
+  update(@Param('id') id: string) {
+    return this.teamsService.update(+id);
   }
 
   @Delete(':id')

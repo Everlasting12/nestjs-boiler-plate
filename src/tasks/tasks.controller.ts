@@ -40,6 +40,17 @@ export class TasksController {
     return this.tasksService.findAll(projectId, query, req.user);
   }
 
+  @Get('approvals')
+  findAllApproval(
+    @Param('projectId') projectId: string,
+    @Query() query: TaskQueryDto,
+    @Req() req: Request & { user: User },
+  ) {
+    query.createdById = [req.user.userId];
+    query.assignedToId = [req.user.userId];
+    return this.tasksService.findAllApproval(projectId, query, req.user);
+  }
+
   @Get('members')
   findMembers(@Req() req: Request & { user: User }) {
     return this.tasksService.fetchMembers(req.user);

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTeamDto } from './dto/create-team.dto';
-import { UpdateTeamDto } from './dto/update-team.dto';
 import { TeamQueryDto } from './dto/get-team-query.dto';
 import { TeamsRepository } from './teams.repository';
 import { UsersService } from 'src/users/users.service';
@@ -30,16 +29,6 @@ export class TeamsService {
     return await this.teamRepository.findAll(query);
   }
 
-  async getMembers(teamId: string) {
-    const team = await this.findOne(teamId);
-    const members = await this.userService.findAll({
-      userIds: team.members,
-      paginate: false,
-      select: ['userId', 'name', 'email'],
-    });
-    return members;
-  }
-
   findOne(teamId: string) {
     return this.teamRepository.findOne({ id: teamId });
   }
@@ -48,7 +37,7 @@ export class TeamsService {
     return await this.teamRepository.findByQuery(query);
   }
 
-  update(id: number, updateTeamDto: UpdateTeamDto) {
+  update(id: number) {
     return `This action updates a #${id} team`;
   }
 

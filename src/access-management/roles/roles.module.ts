@@ -7,5 +7,6 @@ import { RolesRepository } from './roles.repository';
 @Module({
   controllers: [RolesController],
   providers: [PrismaService, RolesService, RolesRepository],
+  exports: [RolesService],
 })
 export class RolesModule {}
