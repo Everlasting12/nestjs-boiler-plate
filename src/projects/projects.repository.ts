@@ -19,6 +19,7 @@ export class ProjectsRepository {
     if (restQuery.name) {
       restQuery.name = {
         contains: restQuery.name,
+        mode: 'insensitive',
       } as any;
     }
     if (restQuery.status) {
