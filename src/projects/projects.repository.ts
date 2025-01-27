@@ -48,9 +48,11 @@ export class ProjectsRepository {
       const data = await this.prisma.project.findMany({
         relationLoadStrategy: 'join',
         where: restQuery as Prisma.ProjectWhereInput,
-        orderBy: {
-          updatedAt: 'desc',
-        },
+        orderBy: [
+          {
+            name: 'asc',
+          },
+        ],
         include: includeRelations,
         ...(select?.length
           ? { select: Object.fromEntries(select.map((field) => [field, true])) }
@@ -69,9 +71,11 @@ export class ProjectsRepository {
       this.prisma.project.findMany({
         relationLoadStrategy: 'join',
         where: restQuery as Prisma.ProjectWhereInput,
-        orderBy: {
-          updatedAt: 'desc',
-        },
+        orderBy: [
+          {
+            name: 'asc',
+          },
+        ],
         skip,
         take: limit,
         include: includeRelations,

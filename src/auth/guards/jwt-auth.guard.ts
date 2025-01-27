@@ -62,7 +62,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     const dto = new CheckAuthorizationDto();
-    dto.host = request.host;
+    dto.host = request.hostname;
     dto.httpMethod = request.method;
     dto.originalUrl = request.url;
     dto.protocol = request.protocol;
