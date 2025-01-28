@@ -167,13 +167,19 @@ export class TasksRepository {
       }
     }
 
+    // if (teamIds?.length) {
+    //   restQuery['OR'] = [
+    //     ...restQuery['OR'],
+    //     {
+    //       teamId: { in: teamIds },
+    //     },
+    //   ];
+    // }
+
     if (teamIds?.length) {
-      restQuery['OR'] = [
-        ...restQuery['OR'],
-        {
-          teamId: { in: teamIds },
-        },
-      ];
+      restQuery.teamId = {
+        in: teamIds,
+      } as any;
     }
 
     const includeRelations = relation

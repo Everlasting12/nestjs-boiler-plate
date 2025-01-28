@@ -126,6 +126,7 @@ export class TasksService {
     let directorIds = [];
     if (roleId === ROLES.TEAM_LEAD) {
       const teams = await this.teamService.findAll({
+        paginate: false,
         teamLeadId: [user.userId],
       });
       if (teams?.total) {
