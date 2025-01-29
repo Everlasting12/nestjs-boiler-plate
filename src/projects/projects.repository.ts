@@ -22,6 +22,12 @@ export class ProjectsRepository {
         mode: 'insensitive',
       } as any;
     }
+    if (restQuery.clientName) {
+      restQuery.clientName = {
+        contains: restQuery.clientName,
+        mode: 'insensitive',
+      } as any;
+    }
     if (restQuery.status) {
       restQuery.status = {
         in: restQuery.status,
