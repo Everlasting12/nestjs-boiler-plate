@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateTeamDto } from '../teams/dto/update-team.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Prisma } from '@prisma/client';
 import { TeamQueryDto } from './dto/get-team-query.dto';
@@ -16,7 +15,7 @@ export class TeamsRepository {
 
   async findAll(query: TeamQueryDto) {
     const { paginate, relation, skip, limit, ...restQuery } = query;
-    delete restQuery.isActive;
+
     if (restQuery?.name) {
       restQuery.name = {
         contains: restQuery.name,
@@ -25,6 +24,11 @@ export class TeamsRepository {
     if (restQuery?.teamLeadId) {
       restQuery.teamLeadId = {
         in: restQuery.teamLeadId,
+      } as any;
+    }
+    if (restQuery?.assistantTeamLeadIds?.length) {
+      restQuery.assistantTeamLeadIds = {
+        hasSome: restQuery.assistantTeamLeadIds,
       } as any;
     }
 
@@ -98,15 +102,21 @@ export class TeamsRepository {
     });
   }
   async findByQuery(query: TeamQueryDto) {
-    const { teamLeadId, ...restQuery } = query;
+    const { teamLeadId, assistantTeamLeadIds, ...restQuery } = query;
 
     return this.prisma.team.findFirst({
       where: restQuery,
     });
   }
 
-  update(id: number, updateTeamDto: UpdateTeamDto) {
-    return `This action updates a #${id} team`;
+  async update(
+    query: Prisma.TeamWhereUniqueInput,
+    updateTeamDto: Prisma.TeamUpdateInput,
+  ) {
+    return await this.prisma.team.update({
+      where: query,
+      data: updateTeamDto,
+    });
   }
 
   remove(id: number) {

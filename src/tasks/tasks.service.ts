@@ -142,6 +142,25 @@ export class TasksService {
         directorIds = directors?.data?.map((director) => director.userId);
       }
     }
+    if (roleId === ROLES.ASSISTANT_TEAM_LEAD) {
+      const teams = await this.teamService.findAll({
+        paginate: false,
+        assistantTeamLeadIds: [user.userId],
+      });
+
+      if (teams?.total) {
+        teamIds = teams.data.map((team) => team.id);
+      }
+
+      const directors = await this.userRolesService.findAll({
+        paginate: false,
+        roleId: [ROLES.DIRECTOR],
+      });
+
+      if (directors?.total) {
+        directorIds = directors?.data?.map((director) => director.userId);
+      }
+    }
 
     return await this.taskRepository.findAllApproval(
       query,
@@ -306,8 +325,8 @@ export class TasksService {
     return users;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  async remove(taskId: string, projectId: string) {
+    return await this.taskRepository.remove({ taskId, projectId });
   }
 
   async checkIfNewProjectAssignedForTask(

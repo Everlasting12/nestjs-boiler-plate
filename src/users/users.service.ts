@@ -10,6 +10,7 @@ import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '../../libs/common/environment-variable';
 import { UserQueryDto } from './dto/get-user-query.dto';
 import { ConfigurationsService } from 'src/configurations/configurations.service';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -80,5 +81,15 @@ export class UsersService {
 
   async updatePassword(userId: string, hashedNewPassword: string) {
     return await this.usersRepository.updatePassword(userId, hashedNewPassword);
+  }
+  async updateByUserId(userId: string, body: UpdateUserDto) {
+    if (body?.email) {
+      const user = await this.findOne({ email: body.email });
+      if (user) {
+        throw new ConflictException('User with email already exists');
+      }
+    }
+
+    return await this.usersRepository.updateOne({ userId }, body);
   }
 }

@@ -19,6 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UserQueryDto } from './dto/get-user-query.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from '@prisma/client';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller({
   version: '1',
@@ -49,6 +50,7 @@ export class UsersController {
   @UseInterceptors(FileInterceptor('file'))
   async patchByUserId(
     @Param('userId') userId: string,
+    @Body() body: UpdateUserDto,
     @UploadedFile(
       new ParseFilePipe({
         fileIsRequired: false,
@@ -59,5 +61,7 @@ export class UsersController {
       }),
     )
     file: Express.Multer.File,
-  ) {}
+  ) {
+    return await this.usersService.updateByUserId(userId, body);
+  }
 }

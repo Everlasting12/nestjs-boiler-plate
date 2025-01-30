@@ -3,6 +3,7 @@ import { CreateTeamDto } from './dto/create-team.dto';
 import { TeamQueryDto } from './dto/get-team-query.dto';
 import { TeamsRepository } from './teams.repository';
 import { UsersService } from 'src/users/users.service';
+import { UpdateTeamDto } from './dto/update-team.dto';
 
 @Injectable()
 export class TeamsService {
@@ -29,6 +30,19 @@ export class TeamsService {
     return await this.teamRepository.findAll(query);
   }
 
+  async findTeamLeadAssistants(teamId: string) {
+    const team = await this.teamRepository.findOne({ id: teamId });
+
+    if (team?.assistantTeamLeadIds?.length) {
+      return await this.userService.findAll({
+        paginate: false,
+        userIds: team?.assistantTeamLeadIds,
+        select: ['userId', 'name', 'email'],
+      });
+    } else {
+      return [];
+    }
+  }
   findOne(teamId: string) {
     return this.teamRepository.findOne({ id: teamId });
   }
@@ -37,11 +51,11 @@ export class TeamsService {
     return await this.teamRepository.findByQuery(query);
   }
 
-  update(id: number) {
-    return `This action updates a #${id} team`;
+  async update(id: string, body: UpdateTeamDto) {
+    return await this.teamRepository.update({ id }, body);
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} team`;
   }
 }

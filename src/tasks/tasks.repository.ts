@@ -301,7 +301,11 @@ export class TasksRepository {
     });
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} task`;
+  async remove(query: Prisma.TaskWhereUniqueInput) {
+    const { taskId, projectId } = query;
+
+    return await this.prisma.task.delete({
+      where: { taskId, projectId },
+    });
   }
 }

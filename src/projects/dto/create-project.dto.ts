@@ -1,7 +1,6 @@
 import {
   IsBoolean,
   IsDateString,
-  IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -43,6 +42,10 @@ export class CreateProjectDto {
 
   @IsString()
   clientName: string;
+
+  @IsOptional()
+  @IsString()
+  companyName: string;
 
   @IsString()
   location: string;

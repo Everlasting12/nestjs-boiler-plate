@@ -13,6 +13,9 @@ export class TeamQueryDto extends PaginationDto {
   teamLeadId?: string[];
 
   @IsOptional()
+  assistantTeamLeadIds?: string[];
+
+  @IsOptional()
   @IsBoolean()
   @Transform((field: TransformFnParams) => field.value === 'true')
   isActive?: boolean;

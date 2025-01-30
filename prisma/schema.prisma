@@ -105,6 +105,7 @@ model Project {
   projectId     String    @unique @default(uuid())
   projectCode   String
   clientName    String
+  companyName   String?
   clientEmailId String?
   name          String
   location      String
@@ -168,6 +169,10 @@ model Team {
 
   teamLeadId String
   teamLead   User   @relation(fields: [teamLeadId], references: [userId], name: "TeamLead") // User who leads the team
+
+  assistantTeamLeadIds String[] // Array of user UUIDs
+
+  isActive Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
