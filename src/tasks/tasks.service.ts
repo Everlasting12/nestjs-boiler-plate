@@ -80,9 +80,14 @@ export class TasksService {
       delete query.projectId;
     }
 
-    if (roleId === ROLES.DIRECTOR) {
-      delete query.assignedToId;
-      delete query.createdById;
+    if ([ROLES.DIRECTOR, ROLES.ADMIN].includes(roleId)) {
+      if (!query.assignedToId?.length) {
+        delete query.assignedToId;
+        delete query.createdById;
+      }
+    } else {
+      query.createdById = [user.userId];
+      query.assignedToId = [user.userId];
     }
 
     let teamIds = [];

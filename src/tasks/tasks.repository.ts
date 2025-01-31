@@ -59,6 +59,12 @@ export class TasksRepository {
         restQuery.createdById = { in: restQuery.createdById } as any;
         restQuery.assignedToId = { in: restQuery.assignedToId } as any;
       }
+    } else {
+      if (restQuery.assignedToId) {
+        restQuery.assignedToId = {
+          in: restQuery.assignedToId,
+        } as any;
+      }
     }
 
     if (teamIds?.length) {

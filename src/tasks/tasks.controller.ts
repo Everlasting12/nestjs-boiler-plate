@@ -35,8 +35,6 @@ export class TasksController {
     @Query() query: TaskQueryDto,
     @Req() req: Request & { user: User },
   ) {
-    query.createdById = [req.user.userId];
-    query.assignedToId = [req.user.userId];
     return this.tasksService.findAll(projectId, query, req.user);
   }
 
