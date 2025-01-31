@@ -286,7 +286,12 @@ export class TasksService {
         break;
       case ROLES.ASSISTANT_TEAM_LEAD:
         query.roleId = Object.values(ROLES).filter(
-          (role) => ![ROLES.DIRECTOR, ROLES.TEAM_LEAD].includes(role),
+          (role) =>
+            ![
+              ROLES.DIRECTOR,
+              ROLES.TEAM_LEAD,
+              ROLES.ASSISTANT_TEAM_LEAD,
+            ].includes(role),
         );
         break;
       case ROLES.ARCHITECT:
