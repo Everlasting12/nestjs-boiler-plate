@@ -117,7 +117,7 @@ export class TasksService {
       delete query.projectId;
     }
 
-    if (roleId === ROLES.DIRECTOR) {
+    if ([ROLES.DIRECTOR, ROLES.ADMIN].includes(roleId)) {
       delete query.assignedToId;
       delete query.createdById;
     }
