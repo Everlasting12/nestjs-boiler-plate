@@ -6,7 +6,7 @@ export class ConfigurationsRepository {
   constructor(private prisma: PrismaService) {}
   async findOne(name: string) {
     return await this.prisma.configuration.findUnique({
-      where: { name },
+      where: { name, isActive: true },
     });
   }
 }

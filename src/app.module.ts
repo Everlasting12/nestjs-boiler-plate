@@ -8,7 +8,6 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { LoggerService } from '../libs/common/logger/logger.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NotificationsModule } from './notifications/notifications.module';
 import { HealthModule } from './health/health.module';
@@ -16,6 +15,8 @@ import { PermissionsModule } from './access-management/permissions/permissions.m
 import { RolesModule } from './access-management/roles/roles.module';
 import { UserRolesModule } from './access-management/user-roles/user-roles.module';
 import { ConfigurationsModule } from './configurations/configurations.module';
+import { UploadModule } from 'libs/common/upload/upload.module';
+import { LoggerService } from 'libs/common/logger/logger.service';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ConfigurationsModule } from './configurations/configurations.module';
     RolesModule,
     UserRolesModule,
     ConfigurationsModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [
