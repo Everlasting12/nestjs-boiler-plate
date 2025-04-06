@@ -9,6 +9,7 @@ import { hash, genSalt } from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import { EnvironmentVariables } from '../../libs/common/environment-variable';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -39,5 +40,19 @@ export class UsersService {
     const salt = await genSalt(+this.configService.get('SALT'));
     body.password = await hash(body.password, salt);
     return await this.usersRepository.createUser(body);
+  }
+
+  async updatePassword(userId: string, hashedNewPassword: string) {
+    return await this.usersRepository.updatePassword(userId, hashedNewPassword);
+  }
+  async updateByUserId(userId: string, body: UpdateUserDto) {
+    if (body?.email) {
+      const user = await this.findOne({ email: body.email });
+      if (user) {
+        throw new ConflictException('User with email already exists');
+      }
+    }
+
+    return await this.usersRepository.updateOne({ userId }, body);
   }
 }

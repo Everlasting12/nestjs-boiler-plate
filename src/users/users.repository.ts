@@ -22,4 +22,21 @@ export class UsersRepository {
       data,
     });
   }
+
+  async updatePassword(userId: string, hashedNewPassword: string) {
+    return await this.prisma.user.update({
+      where: { userId },
+      data: { password: hashedNewPassword },
+    });
+  }
+
+  async updateOne(
+    query: Prisma.UserWhereUniqueInput,
+    body: Prisma.UserUpdateInput,
+  ) {
+    return await this.prisma.user.update({
+      where: query,
+      data: body,
+    });
+  }
 }

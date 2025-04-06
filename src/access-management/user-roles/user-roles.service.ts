@@ -24,8 +24,8 @@ export class UserRolesService {
     return await this.userRolesRepository.findAll(query);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} userRole`;
+  async findOne(query: UserRoleQueryDto) {
+    return await this.userRolesRepository.findOne(query);
   }
 
   async update(id: number, updateUserRoleDto: UpdateUserRoleDto) {

@@ -15,6 +15,7 @@ import { HealthModule } from './health/health.module';
 import { PermissionsModule } from './access-management/permissions/permissions.module';
 import { RolesModule } from './access-management/roles/roles.module';
 import { UserRolesModule } from './access-management/user-roles/user-roles.module';
+import { ConfigurationsModule } from './configurations/configurations.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { UserRolesModule } from './access-management/user-roles/user-roles.modul
     PermissionsModule,
     RolesModule,
     UserRolesModule,
+    ConfigurationsModule,
   ],
   controllers: [AppController],
   providers: [

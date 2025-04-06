@@ -5,6 +5,7 @@ import { Request } from 'express';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { Public } from './guards/jwt-auth.guard';
 import { CheckAuthorizationDto } from './dto/check-authorization.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller({
   path: 'auth',
@@ -17,7 +18,6 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('sign-in')
   async signIn(@Req() req: Request) {
-    console.log('------------------>>');
     return this.authService.signIn(req.user);
   }
 
@@ -33,5 +33,10 @@ export class AuthController {
     @Body() body: CheckAuthorizationDto,
   ): Promise<boolean> {
     return await this.authService.checkAuthorization(body, []);
+  }
+
+  @Post('change-password')
+  async changePassword(@Req() req: Request, @Body() body: ChangePasswordDto) {
+    return await this.authService.changePassword(req.user, body);
   }
 }

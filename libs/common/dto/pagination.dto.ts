@@ -1,5 +1,11 @@
 import { Transform, TransformFnParams, Type } from 'class-transformer';
-import { IsBoolean, IsNumber, ValidateIf } from 'class-validator';
+import {
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateIf,
+} from 'class-validator';
 
 export class PaginationDto {
   @ValidateIf(
@@ -28,4 +34,8 @@ export class PaginationDto {
   @IsNumber({}, { message: "'limit' should be a number (limit >= 0)" })
   @Type(() => Number)
   limit?: number;
+
+  @IsOptional()
+  @IsString({ each: true })
+  select?: string[];
 }
