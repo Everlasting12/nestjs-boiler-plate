@@ -55,7 +55,7 @@ export class TasksService {
       },
     });
 
-    this.checkIfNewProjectAssignedForTask(projectId, assignedToId);
+    // this.checkIfNewProjectAssignedForTask(projectId, assignedToId);
 
     return newTask;
   }

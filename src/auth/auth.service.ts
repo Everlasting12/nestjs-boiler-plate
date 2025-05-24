@@ -46,6 +46,7 @@ export class AuthService {
   async signIn(user: any) {
     this.logger.debug('AuthService ~ signIn ~ user:', user);
     const payload = { email: user.email, sub: user.userId };
+    // const tokenPayload = structuredClone(payload)
 
     const role = await this.userRoleService.findAll({
       userId: [user.userId],
@@ -98,6 +99,9 @@ export class AuthService {
       payload['feScopes'] = feScopes;
       payload['roleId'] = roleId;
       payload['permissionEntities'] = permissionEntities;
+      // tokenPayload['permissionEntities'] = permissionEntities;
+      // tokenPayload['roleId'] = roleId
+      // tokenPayload['apiScopes'] = apiScopes
     }
 
     return {
