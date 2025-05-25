@@ -309,6 +309,11 @@ export class TasksService {
           [ROLES.INTERN].includes(role),
         );
         break;
+      case ROLES.INTERIOR_DESIGNER:
+        query.roleId = Object.values(ROLES).filter((role) =>
+          [ROLES.INTERN].includes(role),
+        );
+        break;
       case ROLES.INTERN:
         break;
 

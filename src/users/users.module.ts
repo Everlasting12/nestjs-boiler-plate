@@ -5,9 +5,10 @@ import { PrismaService } from 'src/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { UsersController } from './users.controller';
 import { ConfigurationsModule } from 'src/configurations/configurations.module';
+import { UserRolesModule } from 'src/access-management/user-roles/user-roles.module';
 
 @Module({
-  imports: [ConfigurationsModule],
+  imports: [ConfigurationsModule, UserRolesModule],
   controllers: [UsersController],
   providers: [UsersService, UsersRepository, PrismaService, ConfigService],
   exports: [UsersService],

@@ -11,6 +11,7 @@ import { EnvironmentVariables } from '../../libs/common/environment-variable';
 import { UserQueryDto } from './dto/get-user-query.dto';
 import { ConfigurationsService } from 'src/configurations/configurations.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserRolesService } from 'src/access-management/user-roles/user-roles.service';
 
 @Injectable()
 export class UsersService {
@@ -18,6 +19,7 @@ export class UsersService {
     private readonly usersRepository: UsersRepository,
     private readonly configService: ConfigService<EnvironmentVariables>,
     private readonly configurationService: ConfigurationsService,
+    private readonly userRolesService: UserRolesService,
   ) {}
   async findAll(query: UserQueryDto) {
     const { unassingedUsers, ...restQuery } = query;
@@ -89,7 +91,11 @@ export class UsersService {
         throw new ConflictException('User with email already exists');
       }
     }
+    const { roleId, ...restBody } = body;
 
-    return await this.usersRepository.updateOne({ userId }, body);
+    if (roleId) {
+      await this.userRolesService.updateByQuery({ userId, roleId });
+    }
+    return await this.usersRepository.updateOne({ userId }, restBody);
   }
 }

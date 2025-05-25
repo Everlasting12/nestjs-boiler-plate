@@ -32,6 +32,10 @@ export class UserRolesService {
     return await this.userRolesRepository.update(id, updateUserRoleDto);
   }
 
+  async updateByQuery({ userId, roleId }) {
+    return await this.userRolesRepository.updateByQuery({ userId, roleId });
+  }
+
   remove(id: number) {
     return `This action removes a #${id} userRole`;
   }

@@ -166,6 +166,13 @@ export class UserRolesRepository {
     });
   }
 
+  async updateByQuery({ userId, roleId }) {
+    return await this.prisma.userRole.updateMany({
+      where: { userId },
+      data: { roleId },
+    });
+  }
+
   remove(id: number) {
     return `This action removes a #${id} userRole`;
   }
